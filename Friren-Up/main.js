@@ -261,24 +261,53 @@ console.log(chalk.white('✐ Conexión replazada, Por favor espere un momento me
 process.send('reset')}
 if (connection === 'close') {
     if (reason === DisconnectReason.badSession) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ SESIÓN INCORRECTA`))
+        console.log(chalk.bold.magentaBright(`┆ 📁 Elimina la carpeta ${global.authFile} y escanea nuevamente`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.error(`Sesión incorrecta, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`)
     } else if (reason === DisconnectReason.connectionClosed) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ CONEXIÓN CERRADA, RECONECTANDO....`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.warn(`Conexión cerrada, reconectando...`)
         await global.reloadHandler(true).catch(console.error)
     } else if (reason === DisconnectReason.connectionLost) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ CONEXIÓN PERDIDA, RECONECTANDO....`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.warn(`Conexión perdida con el servidor, reconectando...`)
         await global.reloadHandler(true).catch(console.error)
     } else if (reason === DisconnectReason.connectionReplaced) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ CONEXIÓN REEMPLAZADA`))
+        console.log(chalk.bold.magentaBright(`┆ ❌ Se ha abierto otra nueva sesión`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.error(`Conexión reemplazada, se ha abierto otra nueva sesión. Por favor, cierra la sesión actual primero.`)
     } else if (reason === DisconnectReason.loggedOut) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ SESIÓN CERRADA`))
+        console.log(chalk.bold.magentaBright(`┆ 📁 Elimina la carpeta ${global.authFile} y escanea nuevamente`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.error(`Conexion cerrada, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`)
     } else if (reason === DisconnectReason.restartRequired) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ REINICIO NECESARIO`))
+        console.log(chalk.bold.magentaBright(`┆ 🔄 Reinicie el servidor si presenta problemas`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.info(`Reinicio necesario, reinicie el servidor si presenta algún problema.`)
         await global.reloadHandler(true).catch(console.error)
     } else if (reason === DisconnectReason.timedOut) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ TIEMPO AGOTADO, RECONECTANDO....`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.warn(`Tiempo de conexión agotado, reconectando...`)
         await global.reloadHandler(true).catch(console.error)
     } else {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ DESCONEXIÓN DESCONOCIDA`))
+        console.log(chalk.bold.magentaBright(`┆ ❓ Razón: ${reason || 'Desconocida'}`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.warn(`Razón de desconexión desconocida. ${reason || ''}: ${connection || ''}`)
         await global.reloadHandler(true).catch(console.error)
     }
