@@ -17,7 +17,7 @@ const require = createRequire(__dirname);
 const { say } = cfonts;
 const rl = createInterface(process.stdin, process.stdout);
 
-figlet('', {
+/*figlet('', {
   font: 'Slant', 
   horizontalLayout: 'default',
   verticalLayout: 'default'
@@ -40,7 +40,7 @@ figlet('', {
     return;
   }
   console.log(chalk.magenta(data));
-});
+});*/
 
 say('Sylpha - Bot', {
   font: 'chrome',
