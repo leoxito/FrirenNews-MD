@@ -9,7 +9,6 @@ import fs from "fs"
 // global.botNumber = SIN NUMERO //Ejemplo: 513218138672
 
 global.owner = ['51918755472'/*,'owner 2', 'owner 3']*/
-global.suittag = [] 
 global.prems = []
 global.libreria = "Baileys Multi Device-MD"
 global.vs = "^NewUpdate | V1"
