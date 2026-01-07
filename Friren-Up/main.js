@@ -1,4 +1,4 @@
-const global = globalThis;
+
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
 import './config.js'
 import { createRequire } from 'module'
@@ -23,6 +23,7 @@ import { makeWASocket, protoType, serialize } from '../lib/simple.js'
 import {Low, JSONFile} from 'lowdb'
 import {mongoDB, mongoDBV2} from '../lib/mongoDB.js'
 import store from '../lib/store.js'
+const global = globalThis;
 const {proto} = (await import('@whiskeysockets/baileys')).default
 const {DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, jidNormalizedUser, PHONENUMBER_MCC} = await import('@whiskeysockets/baileys')
 import readline from 'readline'
