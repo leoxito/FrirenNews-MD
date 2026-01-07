@@ -1,5 +1,5 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
-import './config.js'
+import '../config.js'
 import { createRequire } from 'module'
 import path, { join } from 'path'
 import {fileURLToPath, pathToFileURL} from 'url'
@@ -18,10 +18,10 @@ import P from 'pino'
 import pino from 'pino'
 import Pino from 'pino';
 import { Boom } from '@hapi/boom'
-import { makeWASocket, protoType, serialize } from './lib/simple.js'
+import { makeWASocket, protoType, serialize } from '../lib/simple.js'
 import {Low, JSONFile} from 'lowdb'
-import {mongoDB, mongoDBV2} from './lib/mongoDB.js'
-import store from './lib/store.js'
+import {mongoDB, mongoDBV2} from '../lib/mongoDB.js'
+import store from '../lib/store.js'
 const {proto} = (await import('@whiskeysockets/baileys')).default
 const {DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, jidNormalizedUser, PHONENUMBER_MCC} = await import('@whiskeysockets/baileys')
 import readline from 'readline'
@@ -178,7 +178,7 @@ if (!opts['test']) {
   }
 }
 
-if (opts['server']) (await import('./server.js')).default(global.conn, PORT);
+if (opts['server']) (await import('../server.js')).default(global.conn, PORT);
 
 function clearTmp() {
   const tmp = [join(__dirname, './tmp')];
@@ -336,7 +336,7 @@ global.reloadHandler = async function(restatConn) {
   return true
 };
 
-const pluginFolder = global.__dirname(join(__dirname, './plugins/index'))
+const pluginFolder = global.__dirname(join(__dirname, '../plugins/index'))
 const pluginFilter = (filename) => /\.js$/.test(filename)
 global.plugins = {}
 async function filesInit() {
