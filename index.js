@@ -103,4 +103,4 @@ async function start(files) {
   }
 }
 
-start(['main.js']);
+start([__dirname + '/Friren-Up/main.js']);
