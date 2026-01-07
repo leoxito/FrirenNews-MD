@@ -1,7 +1,7 @@
 {
-  "name": "sylpha-bot",
+  "name": "Friren-MD",
   "version": "1.0.0",
-  "description": "Wa - bot Multi Device",
+  "description": "Friren-MultiDevice",
   "main": "index.js",
   "type": "module",
   "directories": {
@@ -12,23 +12,22 @@
   "scripts": {
     "start": "node index.js"
   },
-  "homepage": "https://github.com/AleXD0009/Sylpha-bot",
+  "homepage": "https://github.com/leoxito/FrirenNews-MD",
   "author": {
-    "name": "JTxs"
+    "name": "leoxito"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AleXD0009/Sylpha-bot.git"
+    "url": "git+https://github.com/leoxito/FrirenNews-MD.git"
   },
   "bugs": {
-    "url": "https://github.com/AleXD0009/Sylpha-bot/issues"
+    "url": "https://github.com/leoxito/FrirenNews-MD/issues"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@bochilteam/scraper": "^4.2.4",
     "@hapi/boom": "^10.0.1",
-    "@StarlightsTeam/Scraper": "github:StarlightsTeam/StarlightsTeam-Scraper",
-    "@whiskeysockets/baileys": "npm:@im-dims/baileys-md",
+    "@whiskeysockets/baileys": "npm:wileys",
     "ruhend-scraper": "*",
     "awesome-phonenumber": "^3.4.0",
     "axios": "^1.1.2",

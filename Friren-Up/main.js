@@ -29,7 +29,6 @@ import NodeCache from 'node-cache'
 const {CONNECTING} = ws
 const {chain} = lodash
 
-
 protoType()
 serialize()
 
@@ -49,8 +48,6 @@ const __dirname = global.__dirname(import.meta.url)
 
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
 global.prefix = new RegExp('^[' + (opts['prefix'] || '‎z/#$%.\\-').replace(/[|\\{}()[\]^$+*?.\-\^]/g, '\\$&') + ']')
-
-// global.opts['db'] = process.env['db']
 
 global.db = new Low(/https?:\/\//.test(opts['db'] || '') ? new cloudDBAdapter(opts['db']) : new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`));
 
@@ -93,16 +90,14 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 const question = (texto) => new Promise((resolver) => rl.question(texto, resolver))
 
 let opcion
-if (methodCodeQR) {
-opcion = '1'
-}
+if (methodCodeQR) opcion = '1'
+
 if (!methodCodeQR && !methodCode && !fs.existsSync(`./${authFile}/creds.json`)) {
 do {
-let lineM = '⋯ ⋯ ⋯ ⋯ ⋯ ⋯ ⋯ ⋯ ⋯ ⋯ ⋯ 》'
-opcion = await question('Seleccione una opción:\n1. Con código QR\n2. Con código de texto de 8 dígitos\n---> ')
+opcion = await question(chalk.blue('✦ Seleccione una opción:\n✐ 1. Con código QR\n✐ 2. Con código de texto de 8 dígitos\n---> '))
 
 if (!/^[1-2]$/.test(opcion)) {
-console.log('Por favor, seleccione solo 1 o 2.\n')
+console.log(chalk.white('Por favor, seleccione solo 1 o 2.\n'))
 }} while (opcion !== '1' && opcion !== '2' || fs.existsSync(`./${authFile}/creds.json`))
 }
 
@@ -111,7 +106,7 @@ const connectionOptions = {
 logger: pino({ level: 'silent' }),
 printQRInTerminal: opcion == '1' ? true : methodCodeQR ? true : false,
 mobile: MethodMobile, 
-browser: opcion == '1' ? ['𝐒𝐲𝐥𝐩𝐡𝐚 - 𝐁𝐨𝐭', 'Safari', '2.0.0'] : methodCodeQR ? ['𝐒𝐲𝐥𝐩𝐡𝐚 - 𝐁𝐨𝐭', 'Safari', '2.0.0'] : ['Ubuntu', 'Chrome', '110.0.5585.95'],
+browser: opcion == '1' ? ['𝐅𝐫𝐢𝐫𝐞𝐧-𝐎𝐟𝐢𝐜𝐢𝐚𝐥', 'Safari', '2.0.0'] : methodCodeQR ? ['𝐅𝐫𝐢𝐫𝐞𝐧-𝐌𝐃 𝐎𝐟𝐢𝐜𝐢𝐚𝐥', 'Safari', '2.0.0'] : ['Ubuntu', 'Chrome', '110.0.5585.95'],
 auth: {
 creds: state.creds,
 keys: makeCacheableSignalKeyStore(state.keys, Pino({ level: "fatal" }).child({ level: "fatal" })),
@@ -142,27 +137,27 @@ let numeroTelefono
 if (!!phoneNumber) {
 numeroTelefono = phoneNumber.replace(/[^0-9]/g, '')
 if (!Object.keys(PHONENUMBER_MCC).some(v => numeroTelefono.startsWith(v))) {
-console.log(chalk.bgBlack(chalk.bold.redBright("Comience con el código de país de su número de WhatsApp.\nejemplo: 54xxxxxxxxx\n")))
+console.log(chalk.blue('✦ Comience con el código de país de su número de WhatsApp.\n✐ Ejemplo: 51xxxxxxxxx\n'))
 process.exit(0)
 }} else {
 while (true) {
-numeroTelefono = await question(chalk.bgBlack(chalk.bold.yellowBright('Por favor, escriba su número de WhatsApp.\nEjemplo: 54xxxxxxxxx\n')))
+numeroTelefono = await question(chalk.blue('✦ Por favor, escriba su número de WhatsApp.\n✐ Ejemplo: 54xxxxxxxxx\n'))
 numeroTelefono = numeroTelefono.replace(/[^0-9]/g, '')
 
 if (numeroTelefono.match(/^\d+$/) && numeroTelefono.length >= 10) {
 break 
 } else {
-console.log(chalk.bgBlack(chalk.bold.redBright("Por favor, escriba su número de WhatsApp.\nEjemplo: 5218261275256.\n")))
+console.log(chalk.white('❀ Por favor, escriba su número de WhatsApp correctamente.\n✐ Ejemplo: 5128261275256.\n'))
 }}
 rl.close()  
 } 
 
-        setTimeout(async () => {
-            let codigo = await conn.requestPairingCode(numeroTelefono)
-            codigo = codigo?.match(/.{1,4}/g)?.join("-") || codigo
-            console.log(chalk.yellow('introduce el código de emparejamiento en WhatsApp.'));
-            console.log(chalk.black(chalk.bgGreen(`Tu código de emparejamiento es : `)), chalk.black(chalk.white(codigo)))
-        }, 3000)
+setTimeout(async () => {
+let codigo = await conn.requestPairingCode(numeroTelefono)
+codigo = codigo?.match(/.{1,4}/g)?.join("-") || codigo
+console.log(chalk.blue('❀ Introduce el código de emparejamiento en WhatsApp.'))
+console.log(chalk.white(`🔐 Tu código de emparejamiento es : ${codigo}`))
+}, 3000)
 }}
 }
 
@@ -178,15 +173,13 @@ if (!opts['test']) {
   }
 }
 
-
-
 function clearTmp() {
   const tmp = [join(__dirname, './tmp')];
   const filename = [];
   tmp.forEach((dirname) => readdirSync(dirname).forEach((file) => filename.push(join(dirname, file))));
   return filename.map((file) => {
     const stats = statSync(file);
-    if (stats.isFile() && (Date.now() - stats.mtimeMs >= 1000 * 60 * 3)) return unlinkSync(file); // 3 minutes
+    if (stats.isFile() && (Date.now() - stats.mtimeMs >= 1000 * 60 * 3)) return unlinkSync(file);
     return false;
   });
 }
@@ -218,9 +211,10 @@ unlinkSync(`./serbot/${directorio}/${fileInDir}`)
 })
 }
 })
-if (SBprekey.length === 0) return; console.log(chalk.cyanBright(`=> No hay archivos por eliminar.`))
+if (SBprekey.length === 0) return;
+console.log(chalk.blue('=> No hay archivos por eliminar.'))
 } catch (err) {
-console.log(chalk.bold.red(`Algo salio mal durante la eliminación, archivos no eliminados`))
+console.log(chalk.white('Algo salió mal durante la eliminación, archivos no eliminados'))
 }}
 
 function purgeOldFiles() {
@@ -236,10 +230,10 @@ if (err) throw err;
 if (stats.isFile() && stats.mtimeMs < oneHourAgo && file !== 'creds.json') { 
 unlinkSync(filePath, err => {  
 if (err) throw err
-console.log(chalk.bold.green(`Archivo ${file} borrado con éxito`))
+console.log(chalk.blue(`Archivo ${file} borrado con éxito`))
 })
 } else {  
-console.log(chalk.bold.red(`Archivo ${file} no borrado` + err))
+console.log(chalk.white(`Archivo ${file} no borrado` + err))
 } }) }) }) })
 }
 
@@ -255,36 +249,65 @@ async function connectionUpdate(update) {
   if (global.db.data == null) loadDatabase();
 if (update.qr != 0 && update.qr != undefined || methodCodeQR) {
 if (opcion == '1' || methodCodeQR) {
-    console.log(chalk.yellow('Escanea el código QR.'));
+    console.log(chalk.blue('Escanea el código QR.'));
  }}
   if (connection == 'open') {
-    console.log(chalk.yellow('Conectado correctamente.'));
+    console.log(chalk.blue('✐ Conectado Exitosamente a Friren-MD 🤍✨️'));
   }
 let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
 if (reason == 405) {
 await fs.unlinkSync("./sessions/" + "creds.json")
-console.log(chalk.bold.redBright(`Conexión replazada, Por favor espere un momento me voy a reiniciar...\nSi aparecen error vuelve a iniciar con : npm start`)) 
+console.log(chalk.white('✐ Conexión replazada, Por favor espere un momento me voy a reiniciar...\n✦ Si aparecen error vuelve a iniciar con : npm start')) 
 process.send('reset')}
 if (connection === 'close') {
     if (reason === DisconnectReason.badSession) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ SESIÓN INCORRECTA`))
+        console.log(chalk.bold.magentaBright(`┆ 📁 Elimina la carpeta ${global.authFile} y escanea nuevamente`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.error(`Sesión incorrecta, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`)
     } else if (reason === DisconnectReason.connectionClosed) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ CONEXIÓN CERRADA, RECONECTANDO....`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.warn(`Conexión cerrada, reconectando...`)
         await global.reloadHandler(true).catch(console.error)
     } else if (reason === DisconnectReason.connectionLost) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ CONEXIÓN PERDIDA, RECONECTANDO....`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.warn(`Conexión perdida con el servidor, reconectando...`)
         await global.reloadHandler(true).catch(console.error)
     } else if (reason === DisconnectReason.connectionReplaced) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ CONEXIÓN REEMPLAZADA`))
+        console.log(chalk.bold.magentaBright(`┆ ❌ Se ha abierto otra nueva sesión`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.error(`Conexión reemplazada, se ha abierto otra nueva sesión. Por favor, cierra la sesión actual primero.`)
     } else if (reason === DisconnectReason.loggedOut) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ SESIÓN CERRADA`))
+        console.log(chalk.bold.magentaBright(`┆ 📁 Elimina la carpeta ${global.authFile} y escanea nuevamente`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.error(`Conexion cerrada, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`)
     } else if (reason === DisconnectReason.restartRequired) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ REINICIO NECESARIO`))
+        console.log(chalk.bold.magentaBright(`┆ 🔄 Reinicie el servidor si presenta problemas`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.info(`Reinicio necesario, reinicie el servidor si presenta algún problema.`)
         await global.reloadHandler(true).catch(console.error)
     } else if (reason === DisconnectReason.timedOut) {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ TIEMPO AGOTADO, RECONECTANDO....`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.warn(`Tiempo de conexión agotado, reconectando...`)
         await global.reloadHandler(true).catch(console.error)
     } else {
+        console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
+        console.log(chalk.bold.magentaBright(`┆ ⚠️ DESCONEXIÓN DESCONOCIDA`))
+        console.log(chalk.bold.magentaBright(`┆ ❓ Razón: ${reason || 'Desconocida'}`))
+        console.log(chalk.bold.magentaBright(`╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
         conn.logger.warn(`Razón de desconexión desconocida. ${reason || ''}: ${connection || ''}`)
         await global.reloadHandler(true).catch(console.error)
     }
