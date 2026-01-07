@@ -27,7 +27,7 @@
   "dependencies": {
     "@bochilteam/scraper": "^4.2.4",
     "@hapi/boom": "^10.0.1",
-    "@whiskeysockets/baileys": "npm:@im-dims/baileys-md",
+    "@whiskeysockets/baileys": "npm:wileys",
     "ruhend-scraper": "*",
     "awesome-phonenumber": "^3.4.0",
     "axios": "^1.1.2",
