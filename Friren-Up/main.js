@@ -252,7 +252,7 @@ if (opcion == '1' || methodCodeQR) {
     console.log(chalk.blue('Escanea el código QR.'));
  }}
   if (connection == 'open') {
-    console.log(chalk.blue('Conectado correctamente.'));
+    console.log(chalk.blue('✐ Conectado Exitosamente a Friren-MD 🤍✨️'));
   }
 let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
 if (reason == 405) {
