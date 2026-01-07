@@ -85,7 +85,7 @@ async function start(files) {
 
     p.on('exit', (_, code) => {
       isRunning = false;
-      console.error('Ocurrió un error inesperado:', code);
+      console.error('❌️ Ocurrió un error inesperado:', code);
       start(files);
 
       if (code === 0) return;
