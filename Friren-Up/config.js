@@ -25,6 +25,8 @@ global.community = "https://chat.whatsapp.com/HY3r3RwkOOKCs6OxCzsEFW"
 global.channel = "https://whatsapp.com/channel/0029VbBZ4YX4inoqvA74nA20"
 global.github = "https://github.com/melodiabl/OguriCap-Bot.git"
 global.gmail = "melodiayaoivv@gmail.com"
+global.multiplier = 69 
+global.maxwarn = '2'
 global.ch = {
 ch1: "120363404287449613@newsletter"
 }
