@@ -28,7 +28,7 @@ import readline from 'readline'
 import NodeCache from 'node-cache'
 const {CONNECTING} = ws
 const {chain} = lodash
-const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
+
 
 protoType()
 serialize()
@@ -178,7 +178,7 @@ if (!opts['test']) {
   }
 }
 
-if (opts['server']) (await import('../server.js')).default(global.conn, PORT);
+
 
 function clearTmp() {
   const tmp = [join(__dirname, './tmp')];

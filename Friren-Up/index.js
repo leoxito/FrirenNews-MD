@@ -6,7 +6,6 @@ import { watchFile, unwatchFile } from 'fs';
 import cfonts from 'cfonts';
 import { createInterface } from 'readline';
 import yargs from 'yargs';
-import express from 'express';
 import chalk from 'chalk';
 import path from 'path';
 import os from 'os';
@@ -17,9 +16,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(__dirname);
 const { say } = cfonts;
 const rl = createInterface(process.stdin, process.stdout);
-
-const app = express();
-const port = process.env.PORT || 8080;
 
 figlet('SYLPHA-BOT', {
   font: 'Slant', 
