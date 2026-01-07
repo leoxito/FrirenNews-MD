@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> c9ec701fc1305b9e1cba5144d387d79c6a7efbdc
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
+<process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
 import './config.js'
 import { createRequire } from 'module'
 import path, { join } from 'path'
