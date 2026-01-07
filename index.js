@@ -18,7 +18,7 @@ const rl = createInterface(process.stdin, process.stdout)
 say('Friren-MD', {
   font: 'chrome',
   align: 'center',
-  gradient: ['cyanBright', 'blue']
+  gradient: ['white', 'blue']
 })
 
 /* ===== INFORMACIÓN DEL SISTEMA ===== */
