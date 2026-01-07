@@ -94,7 +94,7 @@ if (methodCodeQR) opcion = '1'
 
 if (!methodCodeQR && !methodCode && !fs.existsSync(`./${authFile}/creds.json`)) {
 do {
-opcion = await question(chalk.blue('❀ Seleccione una opción:\n✐ 1. Con código QR\n✐ 2. Con código de texto de 8 dígitos\n---> '))
+opcion = await question(chalk.blue('✦ Seleccione una opción:\n✐ 1. Con código QR\n✐ 2. Con código de texto de 8 dígitos\n---> '))
 
 if (!/^[1-2]$/.test(opcion)) {
 console.log(chalk.white('Por favor, seleccione solo 1 o 2.\n'))
