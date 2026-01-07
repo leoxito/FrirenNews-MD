@@ -17,7 +17,7 @@ const require = createRequire(__dirname);
 const { say } = cfonts;
 const rl = createInterface(process.stdin, process.stdout);
 
-figlet('SYLPHA-BOT', {
+figlet('', {
   font: 'Slant', 
   horizontalLayout: 'default',
   verticalLayout: 'default'
@@ -27,10 +27,10 @@ figlet('SYLPHA-BOT', {
     return;
   }
   console.log(chalk.green(data));
-  console.log(chalk.yellow('I N I C I A N D O...'));
+  console.log(chalk.yellow(''));
 });
 
-figlet('Creado Por JTxs', {
+figlet('', {
   font: 'Standard',
   horizontalLayout: 'default',
   verticalLayout: 'default'
