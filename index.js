@@ -28,29 +28,29 @@ const currentTime = new Date().toLocaleString()
 
 const info = `
 ╭─────────────────────────────◉
-│ ${chalk.bgBlue.white.bold('        INFORMACIÓN DEL SISTEMA        ')}
+│ ${chalk.bgBlue.white.bold('      ✐  INFORMACIÓN DEL SISTEMA        ')}
 │「 💻 」${chalk.cyanBright(`SO: ${os.type()}, ${os.release()} - ${os.arch()}`)}
 │「 💾 」${chalk.white(`RAM Total: ${ramInGB.toFixed(2)} GB`)}
 │「 💽 」${chalk.white(`RAM Libre: ${freeRamInGB.toFixed(2)} GB`)}
 ╰─────────────────────────────◉
 
 ╭─────────────────────────────◉
-│ ${chalk.bgBlue.white.bold('        INFORMACIÓN DEL BOT        ')}
+│ ${chalk.bgBlue.white.bold('      ✐  INFORMACIÓN DEL BOT        ')}
 │「 🌸 」${chalk.cyanBright('Nombre » Frieren-MD')}
-│「 💠 」${chalk.white('Versión » NewUpdate | V4')}
+│「 💠 」${chalk.white('Versión » ^NewUpdate | V1')}
 │「 📘 」${chalk.white('Descripción » WhatsApp Bot Multifuncional')}
-│「 👨‍💻 」${chalk.cyanBright('Creador » FzTeis')}
-│「 🎨 」${chalk.cyanBright('Adaptador » leoxitoDev.xyz')}
+│「 👑 」${chalk.cyanBright('Creador » leoxitoDev.xyz')}
+│「 📌 」${chalk.cyanBright('Adaptador » leoxitoDev.xyz')}
 ╰─────────────────────────────◉
 
 ╭─────────────────────────────◉
-│ ${chalk.bgBlue.white.bold('        HORA ACTUAL        ')}
+│ ${chalk.bgBlue.white.bold('      ✐  HORA ACTUAL        ')}
 │「 🕒 」${chalk.cyanBright(currentTime)}
 ╰─────────────────────────────◉
 `
 
 console.log(info)
-console.log(chalk.cyanBright('[🌸]'), chalk.white('Iniciando main.js...\n'))
+console.log(chalk.cyanBright('[🤍]'), chalk.white('Iniciando Friren-MD...\n'))
 
 /* ===== CLUSTER ===== */
 let isRunning = false
