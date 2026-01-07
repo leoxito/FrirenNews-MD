@@ -2,7 +2,7 @@
   "name": "sylpha-bot",
   "version": "1.0.0",
   "description": "Wa - bot Multi Device",
-  "main": "index.js",
+  "main": "Friren-Up/index.js",
   "type": "module",
   "directories": {
     "lib": "lib",
