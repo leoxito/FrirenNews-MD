@@ -174,7 +174,7 @@ if (!opts['test']) {
 }
 
 function clearTmp() {
-  const tmp = [join(__dirname, './tmp')];
+  const tmp = [join(__dirname, '../tmp')];
   const filename = [];
   tmp.forEach((dirname) => readdirSync(dirname).forEach((file) => filename.push(join(dirname, file))));
   return filename.map((file) => {
