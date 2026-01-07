@@ -30,7 +30,7 @@ global.gmail = "leo.xzy01@gmail.com"
 global.multiplier = 69 
 global.maxwarn = '2'
 global.ch = {
-ch1: "120363404287449613@newsletter"
+ch1: "120363404434164076@newsletter"
 }
 
 
