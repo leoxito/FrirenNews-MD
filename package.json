@@ -10,7 +10,7 @@
     "plugins": "plugins"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node Friren-Up/index.js"
   },
   "homepage": "https://github.com/AleXD0009/Sylpha-bot",
   "author": {
