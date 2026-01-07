@@ -11,8 +11,8 @@ global.iconos = [
 
 var handler = m => m
 handler.all = async function (m) { 
-  global.canalIdM = ["120363404287449613@newsletter"]
-  global.canalNombreM = ["✦•┈๑ Melodia ๑┈•✦ Official Channel"]
+  global.canalIdM = ["120363404434164076@newsletter"]
+  global.canalNombreM = ["⋆˚𝜗𝜚˚⋆❀ 𝐅𝐫𝐢𝐞𝐫𝐞𝐧-𝐌𝐃 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥 ❀⋆˚𝜗𝜚˚⋆"]
   global.channelRD = await getRandomChannel()
 
   global.d = new Date(new Date + 3600000)
@@ -20,11 +20,11 @@ handler.all = async function (m) {
   global.fecha = d.toLocaleDateString('es', {day: 'numeric', month: 'numeric', year: 'numeric'})
   global.tiempo = d.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true})
 
-  var canal = 'https://whatsapp.com/channel/0029VbBZ4YX4inoqvA74nA20'  
-  var comunidad = 'https://chat.whatsapp.com/EYi0JuSqDj3LYJ83ohRdMm'
-  var git = 'https://github.com/melodiabl'
-  var github = 'https://github.com/melodiabl/OguriCap-Bot.git' 
-  var correo = 'melodiayaoivv@gmail.com'
+  var canal = 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'  
+  var comunidad = 'https://chat.whatsapp.com/DTy5WmWeyHp4oOzFlydUhN'
+  var git = 'https://github.com/leoxito'
+  var github = 'https://github.com/leoxito/FrirenNews-MD' 
+  var correo = 'leo.xzy01@gmail.com'
   global.redes = [canal, comunidad, git, github, correo].getRandom()
 
   global.nombre = m.pushName || 'Anónimo'
