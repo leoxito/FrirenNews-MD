@@ -35,6 +35,6 @@ ch1: "120363404287449613@newsletter"
 let file = fileURLToPath(import.meta.url)
 watchFile(file, () => {
 unwatchFile(file)
-console.log(chalk.redBright("Update 'settings.js'"))
+console.log(chalk.redBright("Update 'config.js"))
 import(`${file}?update=${Date.now()}`)
 })
