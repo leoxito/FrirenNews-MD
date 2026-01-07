@@ -42,7 +42,7 @@ figlet('', {
   console.log(chalk.magenta(data));
 });*/
 
-say('Sylpha - Bot', {
+say('FrirenNews-MD', {
   font: 'chrome',
   align: 'center',
   gradient: ['red', 'magenta']
