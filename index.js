@@ -42,7 +42,7 @@ figlet('', {
   console.log(chalk.magenta(data));
 });*/
 
-say('FrirenNews-MD', {
+say('Friren-MD', {
   font: 'chrome',
   align: 'center',
   gradient: ['red', 'magenta']
