@@ -2,7 +2,7 @@
   "name": "sylpha-bot",
   "version": "1.0.0",
   "description": "Wa - bot Multi Device",
-  "main": "Friren-Up/index.js",
+  "main": "index.js",
   "type": "module",
   "directories": {
     "lib": "lib",
@@ -10,7 +10,7 @@
     "plugins": "plugins"
   },
   "scripts": {
-    "start": "node Friren-Up/index.js"
+    "start": "node index.js"
   },
   "homepage": "https://github.com/AleXD0009/Sylpha-bot",
   "author": {
