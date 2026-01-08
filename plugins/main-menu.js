@@ -128,17 +128,22 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
 
     let fkontak = await makeFkontak()
-    // VIDEO GIF de 8 segundos
     let videoUrl = 'https://cdn.russellxz.click/e11c2a14.mp4'
 
-    // **SOLO CAMBIO AQUÍ**: Crear media del VIDEO con gifPlayback
+    // Crear media del VIDEO - CON GIF PLAYBACK
     let media = await generateWAMessageContent({
       video: { 
         url: videoUrl
       }
     }, { upload: conn.waUploadToServer })
 
-    // **TODO IGUAL**: BOTÓN CORREGIDO: cta_url con URL
+    // **AGREGAR GIF PLAYBACK AL VIDEO MESSAGE**
+    if (media.videoMessage) {
+      media.videoMessage.gifPlayback = true
+      media.videoMessage.gifAttribution = 0 // 0 = NONE, hace que se reproduzca automáticamente
+    }
+
+    // BOTÓN: Canal Oficial
     const buttons = [
       {
         name: "cta_url",
@@ -149,7 +154,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     ]
 
-    // **TODO IGUAL**: Crear mensaje con botón
+    // Crear mensaje con proto - CON VIDEO COMO GIF
     let msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
@@ -162,7 +167,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             },
             header: {
               hasMediaAttachment: true,
-              videoMessage: media.videoMessage // Video en lugar de imagen
+              videoMessage: media.videoMessage // VIDEO CON GIF PLAYBACK
             },
             nativeFlowMessage: {
               buttons: buttons
@@ -184,41 +189,36 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     }, { quoted: fkontak || m })
 
-    // **AGREGADO**: Añadir gifPlayback al mensaje antes de enviar
-    if (msg.message.viewOnceMessage.message.interactiveMessage.header.videoMessage) {
-      msg.message.viewOnceMessage.message.interactiveMessage.header.videoMessage.gifPlayback = true
-    }
-
     // Enviar mensaje
     await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
 
   } catch (e) {
     console.error('Error en menú:', e)
-
-    // Versión simple si falla el mensaje interactivo
+    
+    // Versión simple con GIF si falla
     try {
       let simpleText = `
 ╭─「 🌳 MENÚ FIEREN-MD 」
-│👤 Usuario: ${name}
-│📊 Usuarios: ${totalreg}
-│⏰ Uptime: ${uptime}
+│✨️ ¡Hola ${name}
+│📌 Usuarios: ${totalreg}
+│⏳️ Uptime: ${uptime}
+│ *${greeting}* 
 ╰─────────────
 
 *Canal oficial:*
 https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
       `.trim()
 
-      // Enviar video como GIF de forma simple
       await conn.sendMessage(m.chat, {
         video: { 
           url: 'https://cdn.russellxz.click/e11c2a14.mp4'
         },
         caption: simpleText,
         mentions: [m.sender],
-        gifPlayback: true // **AQUÍ ESTÁ LA CLAVE PARA GIF**
+        gifPlayback: true
       }, { quoted: fkontak || m })
-
+      
       await conn.sendMessage(m.chat, { react: { text: "⚠️", key: m.key } })
     } catch (err) {
       m.reply(`❌ *Error en el menú:*\n${e.message || 'Error desconocido'}`)
