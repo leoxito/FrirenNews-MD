@@ -27,7 +27,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: "🌺", key: m.key } })
 
-    // CORREGIDO: Manejar el error de JSON.parse
+    // Manejar el error de JSON.parse
     let _package = {}
     try {
       _package = JSON.parse(await promises.readFile(join(__dirname, '../package.json')))
@@ -63,7 +63,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     })
     
     // Construir el texto del menú
-    let menuText = `
+    let bodyText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 │❍ *Usuario* : ${name}
 │✧ *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
@@ -101,7 +101,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       )
       
       if (categoryPlugins.length > 0) {
-        menuText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
+        bodyText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
         
         for (let plugin of categoryPlugins) {
           if (!plugin.help) continue
@@ -111,17 +111,26 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             if (!helpCmd) continue
             
             let cmd = plugin.prefix ? helpCmd : _p + helpCmd
-            let limitIcon = plugin.limit ? '◜⭐◞' : ''
-            let premiumIcon = plugin.premium ? '◜🪪◞' : ''
             let displayText = typeof helpCmd === 'string' ? helpCmd : helpCmd.text || helpCmd.description || ''
             
-            menuText += `ര ⭐️ ׅ ${cmd} « ${displayText}\n`
+            bodyText += `ര ⭐️ ׅ ${cmd} « ${displayText}\n`
           }
         }
       }
     }
     
-    // Configurar botones
+    // Añadir información final
+    bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
+    
+    let fkontak = await makeFkontak()
+    let banner = conn.botBanner || global.banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg'
+    
+    // Crear media del banner
+    let media = await generateWAMessageContent({
+      image: { url: banner }
+    }, { upload: conn.waUploadToServer })
+
+    // SOLO UN BOTÓN: Canal Oficial
     const buttons = [
       {
         name: "cta_url",
@@ -129,37 +138,49 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
           display_text: "✎ 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
           url: "https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N"
         })
-      },
-      {
-        name: "cta_url",
-        buttonParamsJson: JSON.stringify({
-          display_text: "✎ 𝐆𝐞𝐭 𝐘𝐨𝐮𝐫 𝐖𝐞𝐛𝐨𝐭",
-          url: "https://itsuki-serbot.ultraplus.click"
-        })
       }
     ]
-    
-    let fkontak = await makeFkontak()
-    let banner = conn.botBanner || global.banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg'
-    
-    // Enviar mensaje simple primero para ver si funciona
-    await conn.sendMessage(m.chat, {
-      image: { url: banner },
-      caption: menuText.trim(),
-      mentions: [m.sender]
+
+    let msg = generateWAMessageFromContent(m.chat, {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+            body: proto.Message.InteractiveMessage.Body.create({ text: " " }),
+            footer: proto.Message.InteractiveMessage.Footer.create({ text: bodyText }),
+            header: proto.Message.InteractiveMessage.Header.create({
+              hasMediaAttachment: true,
+              imageMessage: media.imageMessage
+            }),
+            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+              buttons: buttons
+            }),
+            contextInfo: {
+              mentionedJid: [m.sender],
+              isForwarded: true,
+              forwardingScore: 999,
+              externalAdReply: fkontak ? {
+                title: fkontak.message.locationMessage.name,
+                body: 'Itsuki Nakano Wabot',
+                thumbnail: fkontak.message.locationMessage.jpegThumbnail,
+                sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'
+              } : {}
+            }
+          })
+        }
+      }
     }, { quoted: fkontak || m })
-    
+
+    await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
-    
+
   } catch (e) {
-    console.error('Error en menú:', e)
-    m.reply('Ocurrió un error al procesar el menú. ' + e.message)
+    console.error(e)
+    m.reply('Ocurrió un error al procesar el menú.')
   }
 }
 
-handler.help = ['menu', 'help', 'menú']
+handler.command = ['menu', 'menú', 'comandos']
 handler.tags = ['main']
-handler.command = ['menu', 'menú', 'help', 'comandos']
 
 export default handler
 
