@@ -131,15 +131,14 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     // VIDEO GIF de 8 segundos
     let videoUrl = 'https://cdn.russellxz.click/e11c2a14.mp4'
 
-    // Crear media del VIDEO en lugar de imagen
+    // **SOLO CAMBIO AQUÍ**: Crear media del VIDEO con gifPlayback
     let media = await generateWAMessageContent({
       video: { 
-        url: videoUrl,
-        gifPlayback: true // Esto lo hace reproducir como GIF
+        url: videoUrl
       }
     }, { upload: conn.waUploadToServer })
 
-    // BOTÓN CORREGIDO: cta_url con URL
+    // **TODO IGUAL**: BOTÓN CORREGIDO: cta_url con URL
     const buttons = [
       {
         name: "cta_url",
@@ -150,7 +149,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     ]
 
-    // Crear mensaje con botón - USANDO proto.fromObject()
+    // **TODO IGUAL**: Crear mensaje con botón
     let msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
@@ -163,7 +162,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             },
             header: {
               hasMediaAttachment: true,
-              videoMessage: media.videoMessage // Cambiado a videoMessage
+              videoMessage: media.videoMessage // Video en lugar de imagen
             },
             nativeFlowMessage: {
               buttons: buttons
@@ -185,6 +184,11 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     }, { quoted: fkontak || m })
 
+    // **AGREGADO**: Añadir gifPlayback al mensaje antes de enviar
+    if (msg.message.viewOnceMessage.message.interactiveMessage.header.videoMessage) {
+      msg.message.viewOnceMessage.message.interactiveMessage.header.videoMessage.gifPlayback = true
+    }
+
     // Enviar mensaje
     await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
@@ -205,14 +209,14 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
       `.trim()
 
-      // Enviar video como alternativa
+      // Enviar video como GIF de forma simple
       await conn.sendMessage(m.chat, {
         video: { 
-          url: 'https://cdn.russellxz.click/e11c2a14.mp4',
-          gifPlayback: true
+          url: 'https://cdn.russellxz.click/e11c2a14.mp4'
         },
         caption: simpleText,
-        mentions: [m.sender]
+        mentions: [m.sender],
+        gifPlayback: true // **AQUÍ ESTÁ LA CLAVE PARA GIF**
       }, { quoted: fkontak || m })
 
       await conn.sendMessage(m.chat, { react: { text: "⚠️", key: m.key } })
