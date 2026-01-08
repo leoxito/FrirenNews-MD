@@ -59,7 +59,7 @@ async function getDownloadLink(tiktokUrl) {
 }
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-    if (!args[0]) throw `>❀ *Pasa el link de TikTok…*\n> *https://vm.tiktok.com/××××××*`
+    if (!args[0]) throw `> ❀ *Pasa el link de TikTok…*\n> *https://vm.tiktok.com/××××××*`
     
     await m.react('🕐')
     try {
