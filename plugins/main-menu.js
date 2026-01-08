@@ -62,7 +62,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     })
     
-    // Construir el texto del menú
+    // Construir el texto del menú - SIN ESPACIO después
     let bodyText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 │❍ *Usuario* : ${name}
@@ -81,7 +81,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 
 `
     
-    // Decoración para cada categoría
+    // Decoración para cada categoría CON EMOJIS DIFERENTES
     const categoryDecorations = {
       'main': '𓂂𓏸 𐅹੭੭ *`𝐈𝐍𝐅𝐎`* ⭐️ ᦡᦡ',
       'search': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐀𝐑𝐂𝐇`* 🔍 ᦡᦡ',
@@ -91,10 +91,22 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ'
     }
     
+    // Emojis para cada comando por categoría
+    const categoryEmojis = {
+      'main': '⭐️',
+      'search': '🔍',
+      'downloader': '🌿',
+      'tools': '🛠️',
+      'sticker': '🎴',
+      'owner': '👑'
+    }
+    
     // Orden de las categorías
     const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner']
     
-    // Añadir cada categoría con su decoración
+    // Añadir cada categoría con su decoración - EVITAR DUPLICADOS
+    let addedCommands = new Set() // Para evitar comandos duplicados
+    
     for (let category of categoryOrder) {
       let categoryPlugins = help.filter(plugin => 
         plugin && plugin.tags && plugin.help && plugin.tags.includes(category)
@@ -110,10 +122,18 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
           for (let helpCmd of helpArray) {
             if (!helpCmd) continue
             
-            let cmd = plugin.prefix ? helpCmd : _p + helpCmd
+            // Extraer el comando base (sin prefijo)
+            let cmdBase = typeof helpCmd === 'string' ? helpCmd.split(' ')[0] : helpCmd.text || ''
+            if (!cmdBase) continue
+            
+            // Evitar duplicados
+            if (addedCommands.has(cmdBase.toLowerCase())) continue
+            addedCommands.add(cmdBase.toLowerCase())
+            
+            let cmd = plugin.prefix ? cmdBase : _p + cmdBase
             let displayText = typeof helpCmd === 'string' ? helpCmd : helpCmd.text || helpCmd.description || ''
             
-            bodyText += `ര ⭐️ ׅ ${cmd} « ${displayText}\n`
+            bodyText += `ര ${categoryEmojis[category] || '⭐️'} ׅ ${cmd} « ${displayText}\n`
           }
         }
       }
