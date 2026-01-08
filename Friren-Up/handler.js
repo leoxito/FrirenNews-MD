@@ -155,7 +155,7 @@ export async function handler(chatUpdate) {
         const isAdmin = isRAdmin || user?.admin == 'admin' || false
         const isBotAdmin = bot?.admin || false
 
-        const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins')
+        const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
         for (let name in global.plugins) {
             let plugin = global.plugins[name]
             if (!plugin)
