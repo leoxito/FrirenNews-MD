@@ -363,7 +363,7 @@ if (m.sender && (user = global.db.data.users[m.sender])) {
 user.exp += m.exp
 }}
 try {
-if (!opts["noprint"]) await (await import("./lib/print.js")).default(m, this)
+if (!opts["noprint"]) await (await import("../lib/print.js")).default(m, this)
 } catch (err) {
 console.warn(err)
 console.log(m.message)
