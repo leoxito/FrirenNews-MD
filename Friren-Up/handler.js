@@ -162,31 +162,7 @@ export async function handler(chatUpdate) {
         const isBotAdmin = bot?.admin || false
 
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
-=======
-        // CORRECCIÓN: Apuntar a la carpeta correcta Comandos dentro de plugins
-        const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
-        
-        // Agrega esto para depuración
-        console.log('🔍 Buscando comandos en:', ___dirname)
-        
->>>>>>> 4627ce44fe94ea3fcabd5d8330de855286e5b8ae
-        for (let name in global.plugins) {
-            let plugin = global.plugins[name]
-            if (!plugin)
-                continue
-            if (plugin.disabled)
-                continue
-            const __filename = join(___dirname, name)
-            if (typeof plugin.all === 'function') {
-                try {
-                    await plugin.all.call(this, m, {
-                        chatUpdate,
-                        __dirname: ___dirname,
-                        __filename
-                    })
-                } catch (e) {
-                    console.error(e)
-                }
+
             }
             if (!opts['restrict'])
                 if (plugin.tags && plugin.tags.includes('admin')) {
