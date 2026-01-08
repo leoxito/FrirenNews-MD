@@ -74,8 +74,6 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 │ *${greeting}* 
 ╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
-*_📜 Aquí tienes la lista de_*
-
 `
 
     // Decoración para cada categoría
