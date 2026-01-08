@@ -2,6 +2,7 @@ import { promises } from 'fs'
 import { join } from 'path'
 import fetch from 'node-fetch'
 import { xpRange } from '../lib/levelling.js'
+import { generateWAMessageFromContent, proto, generateWAMessageContent } from '@whiskeysockets/baileys'
 
 async function makeFkontak() {
   try {
@@ -11,7 +12,7 @@ async function makeFkontak() {
       key: { participants: '0@s.whatsapp.net', remoteJid: 'status@broadcast', fromMe: false, id: 'Halo' },
       message: { 
         locationMessage: { 
-          name: '🌳 𝗠𝗲𝗻𝘂 𝗙𝗶𝗲𝗿𝗲𝗻-𝗠𝗗 𝗢𝗳𝗶𝗰𝗶𝗮𝗹', 
+           name: '🌳 𝗠𝗲𝗻𝘂 𝗙𝗶𝗲𝗿𝗲𝗻-𝗠𝗗 𝗢𝗳𝗶𝗰𝗶𝗮𝗹 ✅️', 
           jpegThumbnail: thumb2 
         } 
       },
@@ -24,7 +25,7 @@ async function makeFkontak() {
 
 let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
   try {
-    await conn.sendMessage(m.chat, { react: { text: "🤍", key: m.key } })
+    await conn.sendMessage(m.chat, { react: { text: "☁️", key: m.key } })
 
     // Manejar el error de JSON.parse
     let _package = {}
@@ -61,24 +62,25 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     })
     
-    // Construir el texto del menú
-    let menuText = `
+    // Construir el texto del menú - SIN ESPACIO después
+    let bodyText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
-│❍ *Usuario* : ${name}
-│✧ *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
-│❍ *Usuarios* : ${totalreg}
-│❏ *Versión* : ${_package.version || '1.0.0'}
-│★ *Librería* : Baileys Multi Device
-│⚡︎ *Uptime* : ${uptime}
-│❐ *RAM* : ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB
-│☄ *¡Hola* @${m.sender.split("@")[0]}!
+│👤 *Usuario* : ${name}
+│🔰 *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
+│📌 *Usuarios* : ${totalreg}
+│📩 *Versión* : ${_package.version || '1.0.0'}
+│📚 *Librería* : Baileys Multi Device
+│⏳️ *Uptime* : ${uptime}
+│💾 *RAM* : ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB
+│✨️ *¡Hola* @${m.sender.split("@")[0]}!
+│ 👋🏻 *Que Pases ${greeting}* 
 ╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
-*_🪴 Aquí tienes la lista de comandos_:*
+*_📜 Aquí tienes la lista de comandos_:*
 
 `
     
-    // Decoración para cada categoría
+    // Decoración para cada categoría CON EMOJIS DIFERENTES
     const categoryDecorations = {
       'main': '𓂂𓏸 𐅹੭੭ *`𝐈𝐍𝐅𝐎`* ⭐️ ᦡᦡ',
       'search': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐀𝐑𝐂𝐇`* 🔍 ᦡᦡ',
@@ -88,17 +90,29 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ'
     }
     
+    // Emojis para cada comando por categoría
+    /*const categoryEmojis = {
+      'main': '⭐️',
+      'search': '🔍',
+      'downloader': '🌿',
+      'tools': '🛠️',
+      'sticker': '🎴',
+      'owner': '👑'
+    }/*
+    
     // Orden de las categorías
     const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner']
     
-    // Añadir cada categoría con su decoración
+    // Añadir cada categoría con su decoración - EVITAR DUPLICADOS
+    let addedCommands = new Set() // Para evitar comandos duplicados
+    
     for (let category of categoryOrder) {
       let categoryPlugins = help.filter(plugin => 
         plugin && plugin.tags && plugin.help && plugin.tags.includes(category)
       )
       
       if (categoryPlugins.length > 0) {
-        menuText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
+        bodyText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
         
         for (let plugin of categoryPlugins) {
           if (!plugin.help) continue
@@ -107,42 +121,80 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
           for (let helpCmd of helpArray) {
             if (!helpCmd) continue
             
-            let cmd = plugin.prefix ? helpCmd : _p + helpCmd
-            let limitIcon = plugin.limit ? '◜⭐◞' : ''
-            let premiumIcon = plugin.premium ? '◜🪪◞' : ''
+            // Extraer el comando base (sin prefijo)
+            let cmdBase = typeof helpCmd === 'string' ? helpCmd.split(' ')[0] : helpCmd.text || ''
+            if (!cmdBase) continue
+            
+            // Evitar duplicados
+            if (addedCommands.has(cmdBase.toLowerCase())) continue
+            addedCommands.add(cmdBase.toLowerCase())
+            
+            let cmd = plugin.prefix ? cmdBase : _p + cmdBase
             let displayText = typeof helpCmd === 'string' ? helpCmd : helpCmd.text || helpCmd.description || ''
             
-            menuText += `ര 🌱 ׅ ${cmd} \n`
+            bodyText += `ര ${categoryEmojis[category] || '🌱'} ׅ ${cmd}\n`
           }
         }
       }
     }
     
+    // Añadir información final
+    bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
+    
     let fkontak = await makeFkontak()
     let banner = conn.botBanner || global.banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg'
     
-    // Enviar mensaje simple
-    await conn.sendMessage(m.chat, {
-      image: { url: banner },
-      caption: menuText.trim(),
-      mentions: [m.sender],
-      contextInfo: {
-        externalAdReply: {
-          title: '🌷 𝗜𝘁𝘀𝘂𝗸𝗶 𝗡𝗮𝗸𝗮𝗻𝗼 𝗢𝗳𝗶𝗰𝗶𝗮𝗹',
-          body: 'Menú de comandos',
-          thumbnail: fkontak ? fkontak.message.locationMessage.jpegThumbnail : null,
-          sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N',
-          mediaType: 1,
-          renderLargerThumbnail: true
+    // Crear media del banner
+    let media = await generateWAMessageContent({
+      image: { url: banner }
+    }, { upload: conn.waUploadToServer })
+
+    // SOLO UN BOTÓN: Canal Oficial
+    const buttons = [
+      {
+        name: "cta_url",
+        buttonParamsJson: JSON.stringify({
+          display_text: "✎ 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
+          url: "https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N"
+        })
+      }
+    ]
+
+    let msg = generateWAMessageFromContent(m.chat, {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+            body: proto.Message.InteractiveMessage.Body.create({ text: " " }),
+            footer: proto.Message.InteractiveMessage.Footer.create({ text: bodyText }),
+            header: proto.Message.InteractiveMessage.Header.create({
+              hasMediaAttachment: true,
+              imageMessage: media.imageMessage
+            }),
+            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+              buttons: buttons
+            }),
+            contextInfo: {
+              mentionedJid: [m.sender],
+              isForwarded: true,
+              forwardingScore: 999,
+              externalAdReply: fkontak ? {
+                title: fkontak.message.locationMessage.name,
+                body: 'Itsuki Nakano Wabot',
+                thumbnail: fkontak.message.locationMessage.jpegThumbnail,
+                sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'
+              } : {}
+            }
+          })
         }
       }
     }, { quoted: fkontak || m })
-    
+
+    await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
-    
+
   } catch (e) {
-    console.error('Error en menú:', e)
-    m.reply('Ocurrió un error al procesar el menú. ' + e.message)
+    console.error(e)
+    m.reply('Ocurrió un error al procesar el menú.')
   }
 }
 
