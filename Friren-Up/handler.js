@@ -12,7 +12,7 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function (
     clearTimeout(this)
     resolve()
 }, ms))
- 
+
 export async function handler(chatUpdate) {
     this.msgqueque = this.msgqueque || []
     if (!chatUpdate)
@@ -122,14 +122,20 @@ export async function handler(chatUpdate) {
         if (opts['swonly'] && m.chat !== 'status@broadcast')  return
         if (typeof m.text !== 'string')
             m.text = ''
-        
+
 
         let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
 
-        const isROwner = [conn.decodeJid(global.conn.user.id), ...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
+        // CORRECCIÓN: Verificar si global.owner existe antes de usar .map()
+        const ownerArray = global.owner && Array.isArray(global.owner) ? global.owner.map(([number]) => number) : []
+        const isROwner = [conn.decodeJid(global.conn.user.id), ...ownerArray].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isOwner = isROwner || m.fromMe
-        const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
-        const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || _user.prem == true
+        // CORRECCIÓN: Verificar si global.mods existe antes de usar .map()
+        const modsArray = global.mods && Array.isArray(global.mods) ? global.mods : []
+        const isMods = isOwner || modsArray.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
+        // CORRECCIÓN: Verificar si global.prems existe antes de usar .map()
+        const premsArray = global.prems && Array.isArray(global.prems) ? global.prems : []
+        const isPrems = isROwner || premsArray.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || _user.prem == true
 
         if (opts['queque'] && m.text && !(isMods || isPrems)) {
             let queque = this.msgqueque, time = 1000 * 5
@@ -146,7 +152,7 @@ export async function handler(chatUpdate) {
         m.exp += Math.ceil(Math.random() * 10)
 
         let usedPrefix
-        
+
         const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
         const participants = (m.isGroup ? groupMetadata.participants : []) || []
         const user = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) === m.sender) : {}) || {}
@@ -155,7 +161,16 @@ export async function handler(chatUpdate) {
         const isAdmin = isRAdmin || user?.admin == 'admin' || false
         const isBotAdmin = bot?.admin || false
 
+<<<<<<< HEAD
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
+=======
+        // CORRECCIÓN: Apuntar a la carpeta correcta Comandos dentro de plugins
+        const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
+        
+        // Agrega esto para depuración
+        console.log('🔍 Buscando comandos en:', ___dirname)
+        
+>>>>>>> 4627ce44fe94ea3fcabd5d8330de855286e5b8ae
         for (let name in global.plugins) {
             let plugin = global.plugins[name]
             if (!plugin)
