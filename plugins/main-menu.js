@@ -34,7 +34,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     } catch {
       _package = { name: 'Bot', version: '1.0.0' }
     }
-    
+
     let { exp, limit, level } = global.db.data.users[m.sender] || { exp: 0, limit: 0, level: 0 }
     let { min, xp, max } = xpRange(level, global.multiplier || 1)
     let name = await conn.getName(m.sender)
@@ -50,7 +50,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     let muptime = clockString(_muptime)
     let uptime = clockString(_uptime)
     let totalreg = Object.keys(global.db.data.users || {}).length
-    
+
     let help = Object.values(global.plugins || []).filter(plugin => !plugin.disabled).map(plugin => {
       return {
         help: Array.isArray(plugin.tags) ? plugin.help : [plugin.help],
@@ -61,7 +61,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
         enabled: !plugin.disabled,
       }
     })
-    
+
     // Construir el texto del menú - SIN ESPACIO después
     let bodyText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
@@ -79,7 +79,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 *_📜 Aquí tienes la lista de comandos_:*
 
 `
-    
+
     // Decoración para cada categoría CON EMOJIS DIFERENTES
     const categoryDecorations = {
       'main': '𓂂𓏸 𐅹੭੭ *`𝐈𝐍𝐅𝐎`* ⭐️ ᦡᦡ',
@@ -89,7 +89,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       'sticker': '𓂂𓏸 𐅹੭੭ *`𝐒𝐓𝐈𝐂𝐊𝐄𝐑𝐒`* 🎴 ᦡᦡ',
       'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ'
     }
-    
+
     // Emojis para cada comando por categoría
     /*const categoryEmojis = {
       'main': '⭐️',
@@ -99,51 +99,51 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       'sticker': '🎴',
       'owner': '👑'
     }*/
-    
+
     // Orden de las categorías
     const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner']
-    
+
     // Añadir cada categoría con su decoración - EVITAR DUPLICADOS
     let addedCommands = new Set() // Para evitar comandos duplicados
-    
+
     for (let category of categoryOrder) {
       let categoryPlugins = help.filter(plugin => 
         plugin && plugin.tags && plugin.help && plugin.tags.includes(category)
       )
-      
+
       if (categoryPlugins.length > 0) {
         bodyText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
-        
+
         for (let plugin of categoryPlugins) {
           if (!plugin.help) continue
-          
+
           let helpArray = Array.isArray(plugin.help) ? plugin.help : [plugin.help]
           for (let helpCmd of helpArray) {
             if (!helpCmd) continue
-            
+
             // Extraer el comando base (sin prefijo)
             let cmdBase = typeof helpCmd === 'string' ? helpCmd.split(' ')[0] : helpCmd.text || ''
             if (!cmdBase) continue
-            
+
             // Evitar duplicados
             if (addedCommands.has(cmdBase.toLowerCase())) continue
             addedCommands.add(cmdBase.toLowerCase())
-            
+
             let cmd = plugin.prefix ? cmdBase : _p + cmdBase
             let displayText = typeof helpCmd === 'string' ? helpCmd : helpCmd.text || helpCmd.description || ''
-            
+
             bodyText += `ര ${categoryEmojis[category] || '🌱'} ׅ ${cmd}\n`
           }
         }
       }
     }
-    
+
     // Añadir información final
     bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
-    
+
     let fkontak = await makeFkontak()
     let banner = conn.botBanner || global.banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg'
-    
+
     // Crear media del banner
     let media = await generateWAMessageContent({
       image: { url: banner }
