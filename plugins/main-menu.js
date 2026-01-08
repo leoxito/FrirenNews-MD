@@ -65,18 +65,17 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     // Construir el texto del menú
     let bodyText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
-│👤 *Usuario* : ${name}
+│✨️ *¡Hola* @${m.sender.split("@")[0]}!
 │🔰 *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
 │📌 *Usuarios* : ${totalreg}
 │📩 *Versión* : ${_package.version || '1.0.0'}
 │📚 *Librería* : Baileys Multi Device
 │⏳️ *Uptime* : ${uptime}
 │💾 *RAM* : ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB
-│✨️ *¡Hola* @${m.sender.split("@")[0]}!
-│ 👋🏻 *Que Pases ${greeting}* 
+│👋🏻 *Que Pases ${greeting}* 
 ╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
-*_📜 Aquí tienes la lista de comandos_:*
+*_📜 Aquí tienes la lista de_*
 
 `
 
