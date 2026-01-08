@@ -162,7 +162,7 @@ export async function handler(chatUpdate) {
         const isBotAdmin = bot?.admin || false
 
         // CORRECCIÓN: Apuntar a la carpeta correcta Comandos dentro de plugins
-        const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins../Comandos')
+        const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins./Comandos')
 
         // Agrega esto para depuración
         console.log('🔍 Buscando comandos en:', ___dirname)
