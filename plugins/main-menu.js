@@ -142,46 +142,37 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     // SOLO UN BOTÓN: Canal Oficial
     const buttons = [
       {
-        name: "cta_url",
+        name: "quick_reply",
         buttonParamsJson: JSON.stringify({
           display_text: "✎ 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
-          url: "https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N"
+          id: "channel"
         })
       }
     ]
 
-    // Crear mensaje con botón usando proto
+    // Crear mensaje con botón - FORMA SIMPLIFICADA SIN .create()
     let msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
-          messageContextInfo: {
-            deviceListMetadata: {},
-            deviceListMetadataVersion: 2
-          },
-          interactiveMessage: proto.Message.InteractiveMessage.create({
-            body: proto.Message.InteractiveMessage.Body.create({ 
+          interactiveMessage: {
+            body: { 
               text: bodyText 
-            }),
-            footer: proto.Message.InteractiveMessage.Footer.create({ 
+            },
+            footer: { 
               text: "🌳 Fieren-MD - Bot de WhatsApp" 
-            }),
-            header: proto.Message.InteractiveMessage.Header.create({
+            },
+            header: {
               hasMediaAttachment: true,
               imageMessage: media.imageMessage
-            }),
-            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-              buttons: buttons.map(btn => 
-                proto.Message.InteractiveMessage.NativeFlowMessage.NativeFlowButton.create({
-                  name: btn.name,
-                  buttonParamsJson: btn.buttonParamsJson
-                })
-              )
-            }),
-            contextInfo: proto.ContextInfo.create({
+            },
+            nativeFlowMessage: {
+              buttons: buttons
+            },
+            contextInfo: {
               mentionedJid: [m.sender],
               forwardingScore: 999,
               isForwarded: true,
-              externalAdReply: proto.ContextInfo.ExternalAdReply.create({
+              externalAdReply: {
                 title: fkontak ? fkontak.message.locationMessage.name : '🌳 Fieren-MD',
                 body: 'Bot Oficial de WhatsApp',
                 thumbnail: fkontak ? fkontak.message.locationMessage.jpegThumbnail : null,
@@ -190,9 +181,9 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
                 renderLargerThumbnail: true,
                 showAdAttribution: true,
                 sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'
-              })
-            })
-          })
+              }
+            }
+          }
         }
       }
     }, { quoted: fkontak || m })
@@ -206,7 +197,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     
     // Versión simple si falla el mensaje interactivo
     try {
-      let simpleMenu = bodyText || `
+      let simpleText = `
 ╭─「 🌳 MENÚ FIEREN-MD 」
 │👤 Usuario: ${name}
 │📊 Usuarios: ${totalreg}
@@ -218,8 +209,8 @@ https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
       `.trim()
       
       await conn.sendMessage(m.chat, {
-        image: { url: banner },
-        caption: simpleMenu,
+        image: { url: banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg' },
+        caption: simpleText,
         mentions: [m.sender]
       }, { quoted: fkontak || m })
       
