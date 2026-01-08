@@ -71,7 +71,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 │📩 *Versión* : ${_package.version || '1.0.0'}
 │⏳️ *Uptime* : ${uptime}
 │💾 *RAM* : ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB
-│👋🏻 *${greeting}* 
+│*${greeting}* 
 ╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
 *_📜 Aquí tienes la lista de_*
