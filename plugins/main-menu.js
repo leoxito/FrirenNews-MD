@@ -63,7 +63,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     })
 
     // Construir el texto del menú
-    let body = `
+    let bodyText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 │✨️ *¡Hola* @${m.sender.split("@")[0]}!
 │🔰 *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
@@ -98,7 +98,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       )
 
       if (categoryPlugins.length > 0) {
-        body += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
+        bodyText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
 
         for (let plugin of categoryPlugins) {
           if (!plugin.help) continue
@@ -118,14 +118,14 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             let cmd = plugin.prefix ? cmdBase : _p + cmdBase
 
             // Emoji fijo para todos los comandos
-            body += `ര 🌱 ׅ ${cmd}\n`
+            bodyText += `ര 🌱 ׅ ${cmd}\n`
           }
         }
       }
     }
 
     // Añadir información final
-    body += `\n▸ *Usa ${_p}menu para ver este menú*`
+    bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
 
     let fkontak = await makeFkontak()
     let banner = conn.botBanner || global.banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg'
@@ -135,27 +135,27 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       image: { url: banner }
     }, { upload: conn.waUploadToServer })
 
-    // SOLO UN BOTÓN: Canal Oficial (quitado el segundo botón)
+    // SOLO UN BOTÓN: Canal Oficial
     const buttons = [
       {
-        name: "cta_url",
+        name: "quick_reply",
         buttonParamsJson: JSON.stringify({
           display_text: "✎ 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
-          url: "https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N"
+          id: "channel"
         })
       }
     ]
 
-    // Usar .fromObject() que es el método correcto
+    // Crear mensaje con botón - FORMA SIMPLIFICADA SIN .create()
     let msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
-          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+          interactiveMessage: {
             body: { 
-              text: " " 
+              text: bodyText 
             },
             footer: { 
-              text: body 
+              text: "🌳 Fieren-MD - Bot de WhatsApp" 
             },
             header: {
               hasMediaAttachment: true,
@@ -166,46 +166,50 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             },
             contextInfo: {
               mentionedJid: [m.sender],
-              isForwarded: true,
               forwardingScore: 999,
-              externalAdReply: fkontak ? {
-                title: fkontak.message.locationMessage.name,
-                body: 'Fieren-MD Bot',
-                thumbnail: fkontak.message.locationMessage.jpegThumbnail,
+              isForwarded: true,
+              externalAdReply: {
+                title: fkontak ? fkontak.message.locationMessage.name : '🌳 Fieren-MD',
+                body: 'Bot Oficial de WhatsApp',
+                thumbnail: fkontak ? fkontak.message.locationMessage.jpegThumbnail : null,
+                mediaType: 1,
+                previewType: 0,
+                renderLargerThumbnail: true,
+                showAdAttribution: true,
                 sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'
-              } : {}
+              }
             }
-          })
+          }
         }
       }
     }, { quoted: fkontak || m })
 
+    // Enviar mensaje
     await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
 
   } catch (e) {
     console.error('Error en menú:', e)
-    
-    // Versión simple si falla
+
+    // Versión simple si falla el mensaje interactivo
     try {
       let simpleText = `
 ╭─「 🌳 MENÚ FIEREN-MD 」
-│✨️ ¡Hola @${m.sender.split("@")[0]}!
-│📌 Usuarios: ${totalreg}
-│⏳️ Uptime: ${uptime}
-│ *${greeting}* 
+│👤 Usuario: ${name}
+│📊 Usuarios: ${totalreg}
+│⏰ Uptime: ${uptime}
 ╰─────────────
 
 *Canal oficial:*
 https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
       `.trim()
-      
+
       await conn.sendMessage(m.chat, {
         image: { url: banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg' },
         caption: simpleText,
         mentions: [m.sender]
       }, { quoted: fkontak || m })
-      
+
       await conn.sendMessage(m.chat, { react: { text: "⚠️", key: m.key } })
     } catch (err) {
       m.reply(`❌ *Error en el menú:*\n${e.message || 'Error desconocido'}`)
@@ -253,4 +257,4 @@ switch(hour){
   case 22: hour = 'una linda noche 🌙'; break;
   case 23: hour = 'una linda noche 🌃'; break;
 }
-var greeting = "Que Tengas " + hour;
+var greeting = "Que Tengas" + hour;
