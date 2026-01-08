@@ -1,6 +1,5 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { getDownloadLink } from '../Scrapers./Tiktokdl.js';
 
 const BASE_URL = 'https://dlpanda.com/en';
 
