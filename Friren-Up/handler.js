@@ -161,8 +161,7 @@ export async function handler(chatUpdate) {
         const isAdmin = isRAdmin || user?.admin == 'admin' || false
         const isBotAdmin = bot?.admin || false
 
-<<<<<<< HEAD
-        const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
+<        const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
 =======
         // CORRECCIÓN: Apuntar a la carpeta correcta Comandos dentro de plugins
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
