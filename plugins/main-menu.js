@@ -128,58 +128,59 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
 
     let fkontak = await makeFkontak()
-    let banner = conn.botBanner || global.banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg'
+    // VIDEO GIF de 8 segundos
+    let videoUrl = 'https://cdn.russellxz.click/e11c2a14.mp4'
 
-    // Crear media del banner
+    // Crear media del VIDEO en lugar de imagen
     let media = await generateWAMessageContent({
-      image: { url: banner }
+      video: { 
+        url: videoUrl,
+        gifPlayback: true // Esto lo hace reproducir como GIF
+      }
     }, { upload: conn.waUploadToServer })
 
-    // SOLO UN BOTÓN: Canal Oficial
+    // BOTÓN CORREGIDO: cta_url con URL
     const buttons = [
       {
-        name: "quick_reply",
+        name: "cta_url",
         buttonParamsJson: JSON.stringify({
           display_text: "✎ 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
-          id: "channel"
+          url: "https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N"
         })
       }
     ]
 
-    // Crear mensaje con botón - FORMA SIMPLIFICADA SIN .create()
+    // Crear mensaje con botón - USANDO proto.fromObject()
     let msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
-          interactiveMessage: {
+          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
             body: { 
-              text: bodyText 
+              text: " " 
             },
             footer: { 
-              text: "🌳 Fieren-MD - Bot de WhatsApp" 
+              text: bodyText 
             },
             header: {
               hasMediaAttachment: true,
-              imageMessage: media.imageMessage
+              videoMessage: media.videoMessage // Cambiado a videoMessage
             },
             nativeFlowMessage: {
               buttons: buttons
             },
             contextInfo: {
               mentionedJid: [m.sender],
-              forwardingScore: 999,
               isForwarded: true,
-              externalAdReply: {
-                title: fkontak ? fkontak.message.locationMessage.name : '🌳 Fieren-MD',
-                body: 'Bot Oficial de WhatsApp',
-                thumbnail: fkontak ? fkontak.message.locationMessage.jpegThumbnail : null,
-                mediaType: 1,
-                previewType: 0,
-                renderLargerThumbnail: true,
-                showAdAttribution: true,
-                sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'
-              }
+              forwardingScore: 999,
+              externalAdReply: fkontak ? {
+                title: fkontak.message.locationMessage.name,
+                body: 'Fieren-MD Bot Oficial',
+                thumbnail: fkontak.message.locationMessage.jpegThumbnail,
+                sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N',
+                mediaType: 2 // 2 para video
+              } : {}
             }
-          }
+          })
         }
       }
     }, { quoted: fkontak || m })
@@ -204,8 +205,12 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
       `.trim()
 
+      // Enviar video como alternativa
       await conn.sendMessage(m.chat, {
-        image: { url: banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg' },
+        video: { 
+          url: 'https://cdn.russellxz.click/e11c2a14.mp4',
+          gifPlayback: true
+        },
         caption: simpleText,
         mentions: [m.sender]
       }, { quoted: fkontak || m })
@@ -257,4 +262,4 @@ switch(hour){
   case 22: hour = 'una linda noche 🌙'; break;
   case 23: hour = 'una linda noche 🌃'; break;
 }
-var greeting = "Que Tengas" + hour;
+var greeting = "Que Tengas " + hour;
