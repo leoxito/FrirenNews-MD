@@ -98,7 +98,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       'tools': '🛠️',
       'sticker': '🎴',
       'owner': '👑'
-    }/*
+    }*/
     
     // Orden de las categorías
     const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner']
