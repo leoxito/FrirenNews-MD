@@ -7,7 +7,7 @@ import fs from "fs"
 //Sólo aplica para opción 2 (ser bot con código de texto de 8 digitos)
 // global.botNumber = SIN NUMERO //Ejemplo: 513218138672
 
-global.owner = ['51918755472'/*,'owner 2', 'owner 3']*/
+global.owner = ['51918755472'] /*,'owner 2', 'owner 3']*/
 global.libreria = "Baileys Multi Device-MD"
 global.vs = "^NewUpdate | V1"
 global.sessions = "Sessions"
