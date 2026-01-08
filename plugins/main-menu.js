@@ -65,7 +65,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     // Construir el texto del menú
     let bodyText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
-│✨️ *¡Hola* {name}
+│✨️ *¡Hola* ${name}
 │🔰 *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
 │📌 *Usuarios* : ${totalreg}
 │📩 *Versión* : ${_package.version || '1.0.0'}
