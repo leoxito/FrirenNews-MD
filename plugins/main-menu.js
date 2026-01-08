@@ -62,7 +62,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     })
 
-    // Construir el texto del menú - SIN ESPACIO después
+    // Construir el texto del menú
     let bodyText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 │👤 *Usuario* : ${name}
@@ -80,7 +80,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 
 `
 
-    // Decoración para cada categoría CON EMOJIS DIFERENTES
+    // Decoración para cada categoría
     const categoryDecorations = {
       'main': '𓂂𓏸 𐅹੭੭ *`𝐈𝐍𝐅𝐎`* ⭐️ ᦡᦡ',
       'search': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐀𝐑𝐂𝐇`* 🔍 ᦡᦡ',
@@ -90,21 +90,11 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ'
     }
 
-    // Emojis para cada comando por categoría
-    /*const categoryEmojis = {
-      'main': '⭐️',
-      'search': '🔍',
-      'downloader': '🌿',
-      'tools': '🛠️',
-      'sticker': '🎴',
-      'owner': '👑'
-    }*/
-
     // Orden de las categorías
     const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner']
 
     // Añadir cada categoría con su decoración - EVITAR DUPLICADOS
-    let addedCommands = new Set() // Para evitar comandos duplicados
+    let addedCommands = new Set()
 
     for (let category of categoryOrder) {
       let categoryPlugins = help.filter(plugin => 
@@ -130,9 +120,9 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             addedCommands.add(cmdBase.toLowerCase())
 
             let cmd = plugin.prefix ? cmdBase : _p + cmdBase
-            let displayText = typeof helpCmd === 'string' ? helpCmd : helpCmd.text || helpCmd.description || ''
 
-            bodyText += `ര ${categoryEmojis[category] || '🌱'} ׅ ${cmd}\n`
+            // Emoji fijo para todos los comandos
+            bodyText += `ര 🌱 ׅ ${cmd}\n`
           }
         }
       }
@@ -160,41 +150,83 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     ]
 
+    // Crear mensaje con botón usando proto
     let msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
-          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-            body: proto.Message.InteractiveMessage.Body.create({ text: " " }),
-            footer: proto.Message.InteractiveMessage.Footer.create({ text: bodyText }),
+          messageContextInfo: {
+            deviceListMetadata: {},
+            deviceListMetadataVersion: 2
+          },
+          interactiveMessage: proto.Message.InteractiveMessage.create({
+            body: proto.Message.InteractiveMessage.Body.create({ 
+              text: bodyText 
+            }),
+            footer: proto.Message.InteractiveMessage.Footer.create({ 
+              text: "🌳 Fieren-MD - Bot de WhatsApp" 
+            }),
             header: proto.Message.InteractiveMessage.Header.create({
               hasMediaAttachment: true,
               imageMessage: media.imageMessage
             }),
             nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-              buttons: buttons
+              buttons: buttons.map(btn => 
+                proto.Message.InteractiveMessage.NativeFlowMessage.NativeFlowButton.create({
+                  name: btn.name,
+                  buttonParamsJson: btn.buttonParamsJson
+                })
+              )
             }),
-            contextInfo: {
+            contextInfo: proto.ContextInfo.create({
               mentionedJid: [m.sender],
-              isForwarded: true,
               forwardingScore: 999,
-              externalAdReply: fkontak ? {
-                title: fkontak.message.locationMessage.name,
-                body: 'Itsuki Nakano Wabot',
-                thumbnail: fkontak.message.locationMessage.jpegThumbnail,
+              isForwarded: true,
+              externalAdReply: proto.ContextInfo.ExternalAdReply.create({
+                title: fkontak ? fkontak.message.locationMessage.name : '🌳 Fieren-MD',
+                body: 'Bot Oficial de WhatsApp',
+                thumbnail: fkontak ? fkontak.message.locationMessage.jpegThumbnail : null,
+                mediaType: 1,
+                previewType: 0,
+                renderLargerThumbnail: true,
+                showAdAttribution: true,
                 sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'
-              } : {}
-            }
+              })
+            })
           })
         }
       }
     }, { quoted: fkontak || m })
 
+    // Enviar mensaje
     await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
 
   } catch (e) {
-    console.error(e)
-    m.reply('Ocurrió un error al procesar el menú.')
+    console.error('Error en menú:', e)
+    
+    // Versión simple si falla el mensaje interactivo
+    try {
+      let simpleMenu = bodyText || `
+╭─「 🌳 MENÚ FIEREN-MD 」
+│👤 Usuario: ${name}
+│📊 Usuarios: ${totalreg}
+│⏰ Uptime: ${uptime}
+╰─────────────
+
+*Canal oficial:*
+https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
+      `.trim()
+      
+      await conn.sendMessage(m.chat, {
+        image: { url: banner },
+        caption: simpleMenu,
+        mentions: [m.sender]
+      }, { quoted: fkontak || m })
+      
+      await conn.sendMessage(m.chat, { react: { text: "⚠️", key: m.key } })
+    } catch (err) {
+      m.reply(`❌ *Error en el menú:*\n${e.message || 'Error desconocido'}`)
+    }
   }
 }
 
