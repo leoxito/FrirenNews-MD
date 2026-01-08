@@ -137,10 +137,23 @@ user.name = nuevo
 }} catch {}
 const chat = global.db.data.chats[m.chat]
 const settings = global.db.data.settings[this.user.jid]  
-const isROwner = [...global.owner.map((number) => number)].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
+
+// ========== CORRECCIÓN AQUÍ ========== (Líneas ~142-150)
+// Verificar que global.owner y global.prems existan antes de usar .map()
+const ownerArray = global.owner && Array.isArray(global.owner) ? global.owner : []
+const premsArray = global.prems && Array.isArray(global.prems) ? global.prems : []
+
+// isROwner corregido
+const isROwner = [...ownerArray.map((number) => number)].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
 const isOwner = isROwner || m.fromMe
-const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender) || user.premium == true
-const isOwners = [this.user.jid, ...global.owner.map((number) => number + "@s.whatsapp.net")].includes(m.sender)
+
+// isPrems corregido
+const isPrems = isROwner || [...premsArray.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")].includes(m.sender) || (user && user.premium == true)
+
+// isOwners corregido
+const isOwners = [this.user.jid, ...ownerArray.map((number) => number + "@s.whatsapp.net")].includes(m.sender)
+// ========== FIN DE CORRECCIÓN ==========
+
 if (opts["queque"] && m.text && !(isPrems)) {
 const queque = this.msgqueque, time = 1000 * 5
 const previousID = queque[queque.length - 1]
