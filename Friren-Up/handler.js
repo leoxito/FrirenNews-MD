@@ -1,5 +1,3 @@
-const global = globalThis;
-
 import { smsg } from '../lib/simple.js'
 import { format } from 'util' 
 import { fileURLToPath } from 'url'
