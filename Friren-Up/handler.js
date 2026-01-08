@@ -165,7 +165,7 @@ export async function handler(chatUpdate) {
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '../plugins/Comandos')
 
         // Agrega esto para depuración
-        console.log('🔍 Buscando comandos en:', ___dirname)
+        /*console.log('🔍 Buscando comandos en:', ___dirname)*/
 
         for (let name in global.plugins) {
             let plugin = global.plugins[name]
