@@ -128,22 +128,8 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
 
     let fkontak = await makeFkontak()
-    let videoUrl = 'https://cdn.russellxz.click/e11c2a14.mp4'
-
-    // Crear media del VIDEO - CON GIF PLAYBACK
-    let media = await generateWAMessageContent({
-      video: { 
-        url: videoUrl
-      }
-    }, { upload: conn.waUploadToServer })
-
-    // **AGREGAR GIF PLAYBACK AL VIDEO MESSAGE**
-    if (media.videoMessage) {
-      media.videoMessage.gifPlayback = true
-      media.videoMessage.gifAttribution = 0 // 0 = NONE, hace que se reproduzca automáticamente
-    }
-
-    // BOTÓN: Canal Oficial
+    
+    // LA CLAVE: Enviar como documento GIF (no como video)
     const buttons = [
       {
         name: "cta_url",
@@ -154,7 +140,27 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     ]
 
-    // Crear mensaje con proto - CON VIDEO COMO GIF
+    // Crear mensaje con GIF como documento
+    const message = {
+      document: { url: 'https://cdn.russellxz.click/e11c2a14.mp4' },
+      mimetype: 'video/mp4',
+      fileName: 'menu.gif',
+      caption: bodyText.trim(),
+      mentions: [m.sender],
+      contextInfo: {
+        mentionedJid: [m.sender],
+        externalAdReply: {
+          title: '🌳 𝗠𝗲𝗻𝘂 𝗙𝗶𝗲𝗿𝗲𝗻-𝗠𝗗 𝗢𝗳𝗶𝗰𝗶𝗮𝗹 ✅️',
+          body: 'Toca para ver el canal',
+          thumbnail: fkontak ? fkontak.message.locationMessage.jpegThumbnail : null,
+          sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N',
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
+    }
+
+    // Enviar mensaje con proto
     let msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
@@ -167,7 +173,13 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             },
             header: {
               hasMediaAttachment: true,
-              videoMessage: media.videoMessage // VIDEO CON GIF PLAYBACK
+              documentMessage: {
+                url: 'https://cdn.russellxz.click/e11c2a14.mp4',
+                mimetype: 'video/mp4',
+                fileName: 'menu_animation.gif',
+                fileLength: '8000000',
+                pageCount: 0
+              }
             },
             nativeFlowMessage: {
               buttons: buttons
@@ -181,7 +193,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
                 body: 'Fieren-MD Bot Oficial',
                 thumbnail: fkontak.message.locationMessage.jpegThumbnail,
                 sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N',
-                mediaType: 2 // 2 para video
+                mediaType: 1
               } : {}
             }
           })
@@ -189,14 +201,30 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     }, { quoted: fkontak || m })
 
-    // Enviar mensaje
+    // Intentar forzar el GIF playback en el documento
+    if (msg.message.viewOnceMessage.message.interactiveMessage.header.documentMessage) {
+      msg.message.viewOnceMessage.message.interactiveMessage.header.documentMessage.gifAttribution = 0
+      msg.message.viewOnceMessage.message.interactiveMessage.header.documentMessage.fileName = 'menu_animation.GIF'
+    }
+
     await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
+    
+    // También enviar como mensaje normal con gifPlayback por si acaso
+    await conn.sendMessage(m.chat, {
+      video: { 
+        url: 'https://cdn.russellxz.click/e11c2a14.mp4'
+      },
+      gifPlayback: true,
+      caption: '🌳 Menú Fieren-MD',
+      mentions: [m.sender]
+    }, { quoted: fkontak || m })
+    
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
 
   } catch (e) {
     console.error('Error en menú:', e)
     
-    // Versión simple con GIF si falla
+    // Último intento: enviar GIF simple
     try {
       let simpleText = `
 ╭─「 🌳 MENÚ FIEREN-MD 」
@@ -214,9 +242,9 @@ https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
         video: { 
           url: 'https://cdn.russellxz.click/e11c2a14.mp4'
         },
+        gifPlayback: true,
         caption: simpleText,
-        mentions: [m.sender],
-        gifPlayback: true
+        mentions: [m.sender]
       }, { quoted: fkontak || m })
       
       await conn.sendMessage(m.chat, { react: { text: "⚠️", key: m.key } })
