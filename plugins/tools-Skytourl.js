@@ -64,7 +64,8 @@ const handler = async (m, { conn, command, usedPrefix }) => {
 
   if (!quoted) {
     return conn.sendMessage(chatId, {
-      text: `> Responde a un archivo para subirlo\n\n> ✨️ Uso: ${pref}${command}`
+      text: `> *☁️ Responde a un archivo para subirlo
+> *Uso: ${pref}${command}*`
     }, { quoted: m })
   }
 
@@ -168,7 +169,7 @@ const handler = async (m, { conn, command, usedPrefix }) => {
     }
 
     await conn.sendMessage(chatId, {
-      text: `> ✅ Subido correctamente\n\n> 🔗 ${res.data.url}`
+      text: `> *✅ Subido correctamente* ${res.data.url}`
     }, { quoted: m })
 
     await conn.sendMessage(chatId, { react: { text: '✅', key: m.key } })
