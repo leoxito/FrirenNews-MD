@@ -20,12 +20,11 @@ handler.all = async function (m) {
   global.fecha = d.toLocaleDateString('es', {day: 'numeric', month: 'numeric', year: 'numeric'})
   global.tiempo = d.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true})
 
-  var canal = 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'  
-  var comunidad = 'https://chat.whatsapp.com/DTy5WmWeyHp4oOzFlydUhN'
+  var canal = 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N'
   var git = 'https://github.com/leoxito'
   var github = 'https://github.com/leoxito/FrirenNews-MD' 
   var correo = 'leo.xzy01@gmail.com'
-  global.redes = [canal, comunidad, git, github, correo].getRandom()
+  global.redes = [canal, git, github, correo].getRandom()
 
   global.nombre = m.pushName || 'Anónimo'
 
