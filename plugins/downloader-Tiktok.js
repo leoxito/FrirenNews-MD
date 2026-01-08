@@ -1,5 +1,5 @@
 // Importar desde Scrapers (ruta correcta)
-import { getDownloadLink } from '../../Scrapers/Tiktokdl.js';
+import { getDownloadLink } from './Scrapers/Tiktokdl.js';
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) throw `> ❀ *Pasa el link de TikTok…*\n> *https://vm.tiktok.com/××××××*`
