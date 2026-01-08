@@ -129,7 +129,15 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 
     let fkontak = await makeFkontak()
     
-    // LA CLAVE: Enviar como documento GIF (no como video)
+    // IMAGEN: https://cdn.russellxz.click/fec84dad.jpg
+    let imageUrl = 'https://cdn.russellxz.click/fec84dad.jpg'
+
+    // Crear media de la imagen
+    let media = await generateWAMessageContent({
+      image: { url: imageUrl }
+    }, { upload: conn.waUploadToServer })
+
+    // BOTÓN: Canal Oficial
     const buttons = [
       {
         name: "cta_url",
@@ -140,27 +148,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     ]
 
-    // Crear mensaje con GIF como documento
-    const message = {
-      document: { url: 'https://cdn.russellxz.click/e11c2a14.mp4' },
-      mimetype: 'video/mp4',
-      fileName: 'menu.gif',
-      caption: bodyText.trim(),
-      mentions: [m.sender],
-      contextInfo: {
-        mentionedJid: [m.sender],
-        externalAdReply: {
-          title: '🌳 𝗠𝗲𝗻𝘂 𝗙𝗶𝗲𝗿𝗲𝗻-𝗠𝗗 𝗢𝗳𝗶𝗰𝗶𝗮𝗹 ✅️',
-          body: 'Toca para ver el canal',
-          thumbnail: fkontak ? fkontak.message.locationMessage.jpegThumbnail : null,
-          sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N',
-          mediaType: 1,
-          renderLargerThumbnail: true
-        }
-      }
-    }
-
-    // Enviar mensaje con proto
+    // Crear mensaje con proto - CON IMAGEN
     let msg = generateWAMessageFromContent(m.chat, {
       viewOnceMessage: {
         message: {
@@ -173,13 +161,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             },
             header: {
               hasMediaAttachment: true,
-              documentMessage: {
-                url: 'https://cdn.russellxz.click/e11c2a14.mp4',
-                mimetype: 'video/mp4',
-                fileName: 'menu_animation.gif',
-                fileLength: '8000000',
-                pageCount: 0
-              }
+              imageMessage: media.imageMessage // IMAGEN
             },
             nativeFlowMessage: {
               buttons: buttons
@@ -193,7 +175,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
                 body: 'Fieren-MD Bot Oficial',
                 thumbnail: fkontak.message.locationMessage.jpegThumbnail,
                 sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N',
-                mediaType: 1
+                mediaType: 1 // 1 para imagen
               } : {}
             }
           })
@@ -201,30 +183,14 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     }, { quoted: fkontak || m })
 
-    // Intentar forzar el GIF playback en el documento
-    if (msg.message.viewOnceMessage.message.interactiveMessage.header.documentMessage) {
-      msg.message.viewOnceMessage.message.interactiveMessage.header.documentMessage.gifAttribution = 0
-      msg.message.viewOnceMessage.message.interactiveMessage.header.documentMessage.fileName = 'menu_animation.GIF'
-    }
-
+    // Enviar mensaje
     await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
-    
-    // También enviar como mensaje normal con gifPlayback por si acaso
-    await conn.sendMessage(m.chat, {
-      video: { 
-        url: 'https://cdn.russellxz.click/e11c2a14.mp4'
-      },
-      gifPlayback: true,
-      caption: '🌳 Menú Fieren-MD',
-      mentions: [m.sender]
-    }, { quoted: fkontak || m })
-    
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
 
   } catch (e) {
     console.error('Error en menú:', e)
     
-    // Último intento: enviar GIF simple
+    // Versión simple si falla
     try {
       let simpleText = `
 ╭─「 🌳 MENÚ FIEREN-MD 」
@@ -239,10 +205,7 @@ https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
       `.trim()
 
       await conn.sendMessage(m.chat, {
-        video: { 
-          url: 'https://cdn.russellxz.click/e11c2a14.mp4'
-        },
-        gifPlayback: true,
+        image: { url: 'https://cdn.russellxz.click/fec84dad.jpg' },
         caption: simpleText,
         mentions: [m.sender]
       }, { quoted: fkontak || m })
