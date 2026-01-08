@@ -5,7 +5,7 @@ const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 // Definir iconos globales
 global.iconos = [
-  'https://cdn.russellxz.click/a015cecd.jpg',
+  'https://cdn.russellxz.click/eb2b74a8.jpg',
   
 ]
 
