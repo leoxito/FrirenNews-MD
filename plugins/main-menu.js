@@ -27,9 +27,16 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: "🌺", key: m.key } })
 
-    let _package = JSON.parse(await promises.readFile(join(__dirname, '../package.json')).catch(_ => ({}))) || {}
-    let { exp, limit, level } = global.db.data.users[m.sender]
-    let { min, xp, max } = xpRange(level, global.multiplier)
+    // CORREGIDO: Manejar el error de JSON.parse
+    let _package = {}
+    try {
+      _package = JSON.parse(await promises.readFile(join(__dirname, '../package.json')))
+    } catch {
+      _package = { name: 'Bot', version: '1.0.0' }
+    }
+    
+    let { exp, limit, level } = global.db.data.users[m.sender] || { exp: 0, limit: 0, level: 0 }
+    let { min, xp, max } = xpRange(level, global.multiplier || 1)
     let name = await conn.getName(m.sender)
     let _uptime = process.uptime() * 1000
     let _muptime
@@ -42,9 +49,9 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     }
     let muptime = clockString(_muptime)
     let uptime = clockString(_uptime)
-    let totalreg = Object.keys(global.db.data.users).length
+    let totalreg = Object.keys(global.db.data.users || {}).length
     
-    let help = Object.values(global.plugins).filter(plugin => !plugin.disabled).map(plugin => {
+    let help = Object.values(global.plugins || []).filter(plugin => !plugin.disabled).map(plugin => {
       return {
         help: Array.isArray(plugin.tags) ? plugin.help : [plugin.help],
         tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
@@ -90,18 +97,25 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     // Añadir cada categoría con su decoración
     for (let category of categoryOrder) {
       let categoryPlugins = help.filter(plugin => 
-        plugin.tags && plugin.tags.includes(category) && plugin.help
+        plugin && plugin.tags && plugin.help && plugin.tags.includes(category)
       )
       
       if (categoryPlugins.length > 0) {
         menuText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
         
         for (let plugin of categoryPlugins) {
-          for (let helpCmd of plugin.help) {
+          if (!plugin.help) continue
+          
+          let helpArray = Array.isArray(plugin.help) ? plugin.help : [plugin.help]
+          for (let helpCmd of helpArray) {
+            if (!helpCmd) continue
+            
             let cmd = plugin.prefix ? helpCmd : _p + helpCmd
             let limitIcon = plugin.limit ? '◜⭐◞' : ''
             let premiumIcon = plugin.premium ? '◜🪪◞' : ''
-            menuText += `ര ⭐️ ׅ ${cmd} « ${helpCmd.description || helpCmd}\n`
+            let displayText = typeof helpCmd === 'string' ? helpCmd : helpCmd.text || helpCmd.description || ''
+            
+            menuText += `ര ⭐️ ׅ ${cmd} « ${displayText}\n`
           }
         }
       }
@@ -128,50 +142,18 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     let fkontak = await makeFkontak()
     let banner = conn.botBanner || global.banner || 'https://telegra.ph/file/72f984396bb1db415d153.jpg'
     
-    // Crear mensaje interactivo
-    let media = await generateWAMessageContent({
-      image: { url: banner }
-    }, { upload: conn.waUploadToServer })
-    
-    let msg = generateWAMessageFromContent(m.chat, {
-      viewOnceMessage: {
-        message: {
-          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-            body: proto.Message.InteractiveMessage.Body.create({ 
-              text: menuText.trim() 
-            }),
-            footer: proto.Message.InteractiveMessage.Footer.create({ 
-              text: "▸ Usa .help <comando> para más información\n▸ Ejemplo: .help tiktok" 
-            }),
-            header: proto.Message.InteractiveMessage.Header.create({
-              hasMediaAttachment: true,
-              imageMessage: media.imageMessage
-            }),
-            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-              buttons: buttons
-            }),
-            contextInfo: {
-              mentionedJid: [m.sender],
-              isForwarded: true,
-              forwardingScore: 999,
-              externalAdReply: fkontak ? {
-                title: fkontak.message.locationMessage.name,
-                body: 'Itsuki Nakano Wabot',
-                thumbnail: fkontak.message.locationMessage.jpegThumbnail,
-                sourceUrl: 'https://itsuki-serbot.ultraplus.click'
-              } : {}
-            }
-          })
-        }
-      }
+    // Enviar mensaje simple primero para ver si funciona
+    await conn.sendMessage(m.chat, {
+      image: { url: banner },
+      caption: menuText.trim(),
+      mentions: [m.sender]
     }, { quoted: fkontak || m })
     
-    await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
     
   } catch (e) {
-    console.error(e)
-    m.reply('Ocurrió un error al procesar el menú.')
+    console.error('Error en menú:', e)
+    m.reply('Ocurrió un error al procesar el menú. ' + e.message)
   }
 }
 
