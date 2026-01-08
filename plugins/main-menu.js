@@ -11,7 +11,7 @@ async function makeFkontak() {
       key: { participants: '0@s.whatsapp.net', remoteJid: 'status@broadcast', fromMe: false, id: 'Halo' },
       message: { 
         locationMessage: { 
-          name: '🌷 𝗜𝘁𝘀𝘂𝗸𝗶 𝗡𝗮𝗸𝗮𝗻𝗼 𝗢𝗳𝗶𝗰𝗶𝗮𝗹 ✅', 
+          name: '🌳 𝗠𝗲𝗻𝘂 𝗙𝗶𝗲𝗿𝗲𝗻-𝗠𝗗 𝗢𝗳𝗶𝗰𝗶𝗮𝗹', 
           jpegThumbnail: thumb2 
         } 
       },
@@ -24,7 +24,7 @@ async function makeFkontak() {
 
 let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
   try {
-    await conn.sendMessage(m.chat, { react: { text: "🌺", key: m.key } })
+    await conn.sendMessage(m.chat, { react: { text: "🤍", key: m.key } })
 
     // Manejar el error de JSON.parse
     let _package = {}
