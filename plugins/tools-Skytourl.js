@@ -64,7 +64,7 @@ const handler = async (m, { conn, command, usedPrefix }) => {
 
   if (!quoted) {
     return conn.sendMessage(chatId, {
-      text: `> *☁️ Responde a un archivo para subirlo
+      text: `> *☁️ Responde a un archivo para subirlo*
 > *Uso: ${pref}${command}*`
     }, { quoted: m })
   }
