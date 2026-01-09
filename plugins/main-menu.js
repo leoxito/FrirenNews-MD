@@ -107,13 +107,13 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 
           // Obtener el comando REAL (handler.command)
           let commandArray = Array.isArray(plugin.command) ? plugin.command : [plugin.command]
-          
+
           for (let cmdObj of commandArray) {
             if (!cmdObj) continue
 
             // Extraer el comando base REAL
             let cmdBase
-            
+
             if (typeof cmdObj === 'string') {
               // Si es string simple como "sky"
               cmdBase = cmdObj.trim()
@@ -123,7 +123,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             } else {
               continue
             }
-            
+
             if (!cmdBase) continue
 
             // Evitar duplicados
@@ -133,18 +133,8 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             // Agregar prefijo si no es custom
             let cmd = plugin.prefix ? cmdBase : _p + cmdBase
 
-            // Obtener descripción si existe
-            let desc = ''
-            if (plugin.help) {
-              if (typeof plugin.help === 'string') {
-                desc = plugin.help
-              } else if (Array.isArray(plugin.help)) {
-                desc = plugin.help[0] || ''
-              }
-            }
-
             // Emoji fijo para todos los comandos
-            bodyText += `ര 🌱 ׅ ${cmd}${desc ? `` : ''}\n`
+            bodyText += `ര 🌱 ׅ ${cmd}\n`
           }
         }
       }
