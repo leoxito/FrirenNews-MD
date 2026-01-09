@@ -107,14 +107,28 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
           for (let helpCmd of helpArray) {
             if (!helpCmd) continue
 
-            // Extraer el comando base (sin prefijo)
-            let cmdBase = typeof helpCmd === 'string' ? helpCmd.split(' ')[0] : helpCmd.text || ''
+            // CORREGIDO: Manejar diferentes formatos de helpCmd
+            let cmdDisplay, cmdBase
+            
+            if (typeof helpCmd === 'string') {
+              // Si es string simple como "sky"
+              cmdBase = helpCmd.trim()
+              cmdDisplay = helpCmd.trim()
+            } else if (helpCmd && typeof helpCmd === 'object') {
+              // Si es objeto como { text: 'sky', description: 'Subir a enlace' }
+              cmdBase = helpCmd.text || helpCmd.command || ''
+              cmdDisplay = helpCmd.text || helpCmd.command || ''
+            } else {
+              continue
+            }
+            
             if (!cmdBase) continue
 
             // Evitar duplicados
             if (addedCommands.has(cmdBase.toLowerCase())) continue
             addedCommands.add(cmdBase.toLowerCase())
 
+            // Agregar prefijo si no es custom
             let cmd = plugin.prefix ? cmdBase : _p + cmdBase
 
             // Emoji fijo para todos los comandos
@@ -128,7 +142,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
 
     let fkontak = await makeFkontak()
-    
+
     // IMAGEN: https://cdn.russellxz.click/fec84dad.jpg
     let imageUrl = 'https://cdn.russellxz.click/fec84dad.jpg'
 
@@ -189,7 +203,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 
   } catch (e) {
     console.error('Error en menú:', e)
-    
+
     // Versión simple si falla
     try {
       let simpleText = `
@@ -209,7 +223,7 @@ https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
         caption: simpleText,
         mentions: [m.sender]
       }, { quoted: fkontak || m })
-      
+
       await conn.sendMessage(m.chat, { react: { text: "⚠️", key: m.key } })
     } catch (err) {
       m.reply(`❌ *Error en el menú:*\n${e.message || 'Error desconocido'}`)
