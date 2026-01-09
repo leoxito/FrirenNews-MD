@@ -173,33 +173,34 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     ]
 
-    let header
     const thumbResponse = await fetch('https://cdn.russellxz.click/b780df8e.jpg')
-    const thumbBuffer = Buffer.from(await thumbResponse.arrayBuffer())
+    const thumbBuffer = await thumbResponse.arrayBuffer()
     
     const media = await prepareWAMessageMedia({ image: { url: imageUrl } }, { upload: conn.waUploadToServer })
     
-    header = {
+    const headerObj = {
       hasMediaAttachment: true,
       title: '𝐅𝐑𝐈𝐄𝐑𝐄𝐍 𝐁𝐎𝐓 𝐀𝐈',
       subtitle: '𝗗𝗲𝘃 𝗕𝘆 𝗟𝗲𝗼𝘅𝗶𝘁𝗼𝗗𝗲𝘃.𝘆𝘅𝘇',
       hasThumbnail: true,
-      thumbnail: thumbBuffer,
-      renderLargerThumbnail: false,
-      imageMessage: media.imageMessage
+      thumbnail: Buffer.from(thumbBuffer)
     }
 
-    const interactiveMessage = {
+    const interactiveObj = {
       body: { text: menuText },
       footer: { text: '' },
-      header: proto.Message.InteractiveMessage.Header.fromObject(header),
+      header: headerObj,
       nativeFlowMessage: {
         buttons: nativeButtons
       }
     }
 
+    interactiveObj.header.imageMessage = media.imageMessage
+
+    const interactiveMessage = proto.Message.InteractiveMessage.fromObject(interactiveObj)
+
     const fkontak = await makeFkontak()
-    const msg = generateWAMessageFromContent(m.chat, { interactiveMessage: proto.Message.InteractiveMessage.fromObject(interactiveMessage) }, { 
+    const msg = generateWAMessageFromContent(m.chat, { interactiveMessage }, { 
       userJid: conn.user.jid, 
       quoted: fkontak 
     })
