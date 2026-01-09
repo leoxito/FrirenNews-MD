@@ -68,7 +68,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     const now = new Date()
     const utcHour = now.getUTCHours()
     const mexicanHour = (utcHour - 6 + 24) % 24 // Hora Central de México
-    
+
     let hour
     switch(mexicanHour){
       case 0: hour = 'una linda noche 🌙'; break;
@@ -107,8 +107,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 │✦ *Versión* : ${_package.version || '1.0.0'}
 │✦ *Uptime* : ${uptime}
 │✐ *RAM* : ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB
-│ *${greeting}* 
-╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+│ *${greeting}* ╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
 `
 
@@ -125,7 +124,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     // Orden de las categorías
     const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner']
 
-    // Añadir cada categoría con su decoración - EVITAR DUPLICADOS
+    // Añadir cada categoría con su decoración
     let addedCommands = new Set()
 
     for (let category of categoryOrder) {
@@ -165,13 +164,11 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     }
 
-    // Añadir información final
     menuText += `\n> *Usa ${_p}menu para ver este menú*`
 
-    // IMAGEN
-    let imageUrl = 'https://cdn.russellxz.click/e07c77a9.jpg'
+    // NUEVO THUMBNAIL SOLICITADO
+    let imageUrl = 'https://cdn.russellxz.click/b780df8e.jpg'
 
-    // BOTONES: SOLO Canal Oficial
     const nativeButtons = [
       {
         name: 'cta_url',
@@ -185,14 +182,15 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     let header
     const media = await prepareWAMessageMedia({ image: { url: imageUrl } }, { upload: conn.waUploadToServer })
     header = proto.Message.InteractiveMessage.Header.fromObject({
+      title: 'frieren Bot IA', // NOMBRE DEL ENCABEZADO
       hasMediaAttachment: true,
       imageMessage: media.imageMessage
     })
 
     // Crear mensaje interactivo
     const interactiveMessage = proto.Message.InteractiveMessage.fromObject({
-      body: proto.Message.InteractiveMessage.Body.fromObject({ text: menuText }),
-      footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: '' }),
+      body: proto.Message.InteractiveMessage.Body.fromObject({ text: 'LeoxitoDev.xyz' }), // CERTIFICACIÓN BODY
+      footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: menuText }), // Movido menuText al footer para mejor visibilidad si el body es corto, o puedes mantenerlo en body
       header,
       nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
         buttons: nativeButtons
