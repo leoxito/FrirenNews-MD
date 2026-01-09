@@ -169,7 +169,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     menuText += `\n> *Usa ${_p}menu para ver este menú*`
 
     // IMAGEN
-    let imageUrl = 'https://cdn.russellxz.click/fec84dad.jpg'
+    let imageUrl = 'https://cdn.russellxz.click/e07c77a9.jpg'
 
     // BOTONES: SOLO Canal Oficial
     const nativeButtons = [
