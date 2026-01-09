@@ -42,7 +42,7 @@ else return conn.reply(m.chat, '*🌱 Responda a una Imagen o Vídeo.*', m, rcan
 
 handler.help = ['sticker']
 handler.tags = ['sticker']
-handler.command = ['s', 'sticker', 'stiker'] 
+handler.command = ['s', 'sticker'] 
 
 export default handler
 
