@@ -135,7 +135,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             let cmd = plugin.prefix ? cmdBase : _p + cmdBase
 
             // Emoji fijo para todos los comandos
-            menuText += `ര 🌱 ׅ ${cmd}\n`
+            menuText += `ര 🌱 ׅ *_${cmd}_*\n`
           }
         }
       }
