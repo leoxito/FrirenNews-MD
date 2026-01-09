@@ -144,7 +144,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             }
 
             // Emoji fijo para todos los comandos
-            bodyText += `ര 🌱 ׅ ${cmd}${desc ? ` « ${desc}` : ''}\n`
+            bodyText += `ര 🌱 ׅ ${cmd}${desc ? `` : ''}\n`
           }
         }
       }
