@@ -1,8 +1,9 @@
 import { promises } from 'fs'
 import { join } from 'path'
+import { existsSync } from 'fs'
 import fetch from 'node-fetch'
 import { xpRange } from '../lib/levelling.js'
-import { generateWAMessageFromContent, proto, generateWAMessageContent } from '@whiskeysockets/baileys'
+import { generateWAMessageFromContent, proto, generateWAMessageContent, prepareWAMessageMedia } from '@whiskeysockets/baileys'
 
 async function makeFkontak() {
   try {
@@ -65,7 +66,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     })
 
     // Construir el texto del menú
-    let bodyText = `
+    let menuText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 │✨️ *¡Hola* ${name}
 │🔰 *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
@@ -100,7 +101,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       )
 
       if (categoryPlugins.length > 0) {
-        bodyText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
+        menuText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
 
         for (let plugin of categoryPlugins) {
           if (!plugin.command) continue
@@ -134,70 +135,52 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             let cmd = plugin.prefix ? cmdBase : _p + cmdBase
 
             // Emoji fijo para todos los comandos
-            bodyText += `ര 🌱 ׅ ${cmd}\n`
+            menuText += `ര 🌱 ׅ ${cmd}\n`
           }
         }
       }
     }
 
     // Añadir información final
-    bodyText += `\n▸ *Usa ${_p}menu para ver este menú*`
-
-    let fkontak = await makeFkontak()
+    menuText += `\n▸ *Usa ${_p}menu para ver este menú*`
 
     // IMAGEN: https://cdn.russellxz.click/fec84dad.jpg
     let imageUrl = 'https://cdn.russellxz.click/fec84dad.jpg'
 
-    // Crear media de la imagen
-    let media = await generateWAMessageContent({
-      image: { url: imageUrl }
-    }, { upload: conn.waUploadToServer })
-
-    // BOTÓN: Canal Oficial
-    const buttons = [
+    // BOTONES: SOLO Canal Oficial
+    const nativeButtons = [
       {
-        name: "cta_url",
-        buttonParamsJson: JSON.stringify({
+        name: 'cta_url',
+        buttonParamsJson: JSON.stringify({ 
           display_text: "✎ 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
-          url: "https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N"
+          url: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N' 
         })
       }
     ]
 
-    // Crear mensaje con proto - CON IMAGEN
-    let msg = generateWAMessageFromContent(m.chat, {
-      viewOnceMessage: {
-        message: {
-          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-            body: { 
-              text: " " 
-            },
-            footer: { 
-              text: bodyText 
-            },
-            header: {
-              hasMediaAttachment: true,
-              imageMessage: media.imageMessage // IMAGEN
-            },
-            nativeFlowMessage: {
-              buttons: buttons
-            },
-            contextInfo: {
-              mentionedJid: [m.sender],
-              isForwarded: true,
-              forwardingScore: 999,
-              externalAdReply: fkontak ? {
-                title: fkontak.message.locationMessage.name,
-                body: 'Fieren-MD Bot Oficial',
-                thumbnail: fkontak.message.locationMessage.jpegThumbnail,
-                sourceUrl: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N',
-                mediaType: 1 // 1 para imagen
-              } : {}
-            }
-          })
-        }
-      }
-    }, { quoted: fkontak || m })
+    let header
+    // Crear media de la imagen
+    const media = await prepareWAMessageMedia({ image: { url: imageUrl } }, { upload: conn.waUploadToServer })
+    header = proto.Message.InteractiveMessage.Header.fromObject({
+      hasMediaAttachment: true,
+      imageMessage: media.imageMessage
+    })
+
+    // === Crear mensaje interactivo ===
+    const interactiveMessage = proto.Message.InteractiveMessage.fromObject({
+      body: proto.Message.InteractiveMessage.Body.fromObject({ text: menuText }),
+      footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: '' }),
+      header,
+      nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+        buttons: nativeButtons
+      })
+    })
+
+    const fkontak = await makeFkontak()
+    const msg = generateWAMessageFromContent(m.chat, { interactiveMessage }, { 
+      userJid: conn.user.jid, 
+      quoted: fkontak 
+    })
 
     // Enviar mensaje
     await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
