@@ -51,6 +51,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     let uptime = clockString(_uptime)
     let totalreg = Object.keys(global.db.data.users || {}).length
 
+    // Obtener plugins con sus comandos REALES
     let plugins = Object.values(global.plugins || []).filter(plugin => !plugin.disabled).map(plugin => {
       return {
         command: plugin.command,
@@ -63,9 +64,10 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     })
 
+    // Saludo según hora de México (Zona Centro)
     const now = new Date()
     const utcHour = now.getUTCHours()
-    const mexicanHour = (utcHour - 6 + 24) % 24
+    const mexicanHour = (utcHour - 6 + 24) % 24 // Hora Central de México
 
     let hour
     switch(mexicanHour){
@@ -96,6 +98,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     }
     let greeting = "Que Tengas " + hour
 
+    // Construir el texto del menú
     let menuText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 │✐ *¡Hola* ${name}
@@ -109,6 +112,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 
 `
 
+    // Decoración para cada categoría
     const categoryDecorations = {
       'main': '𓂂𓏸 𐅹੭੭ *`𝐈𝐍𝐅𝐎`* ⭐️ ᦡᦡ',
       'search': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐀𝐑𝐂𝐇`* 🔍 ᦡᦡ',
@@ -118,8 +122,10 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ'
     }
 
+    // Orden de las categorías
     const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner']
 
+    // Añadir cada categoría con su decoración - EVITAR DUPLICADOS
     let addedCommands = new Set()
 
     for (let category of categoryOrder) {
@@ -159,10 +165,13 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     }
 
+    // Añadir información final
     menuText += `\n> *Usa ${_p}menu para ver este menú*`
 
+    // IMAGEN
     let imageUrl = 'https://cdn.russellxz.click/e07c77a9.jpg'
 
+    // BOTONES: SOLO Canal Oficial
     const nativeButtons = [
       {
         name: 'cta_url',
@@ -173,31 +182,22 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     ]
 
-    const thumbResponse = await fetch('https://cdn.russellxz.click/b780df8e.jpg')
-    const thumbBuffer = await thumbResponse.arrayBuffer()
-    
+    let header
     const media = await prepareWAMessageMedia({ image: { url: imageUrl } }, { upload: conn.waUploadToServer })
-    
-    const headerObj = {
+    header = proto.Message.InteractiveMessage.Header.fromObject({
       hasMediaAttachment: true,
-      title: '𝐅𝐑𝐈𝐄𝐑𝐄𝐍 𝐁𝐎𝐓 𝐀𝐈',
-      subtitle: '𝗗𝗲𝘃 𝗕𝘆 𝗟𝗲𝗼𝘅𝗶𝘁𝗼𝗗𝗲𝘃.𝘆𝘅𝘇',
-      hasThumbnail: true,
-      thumbnail: Buffer.from(thumbBuffer)
-    }
+      imageMessage: media.imageMessage
+    })
 
-    const interactiveObj = {
-      body: { text: menuText },
-      footer: { text: '' },
-      header: headerObj,
-      nativeFlowMessage: {
+    // Crear mensaje interactivo
+    const interactiveMessage = proto.Message.InteractiveMessage.fromObject({
+      body: proto.Message.InteractiveMessage.Body.fromObject({ text: menuText }),
+      footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: '' }),
+      header,
+      nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
         buttons: nativeButtons
-      }
-    }
-
-    interactiveObj.header.imageMessage = media.imageMessage
-
-    const interactiveMessage = proto.Message.InteractiveMessage.fromObject(interactiveObj)
+      })
+    })
 
     const fkontak = await makeFkontak()
     const msg = generateWAMessageFromContent(m.chat, { interactiveMessage }, { 
