@@ -51,14 +51,16 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     let uptime = clockString(_uptime)
     let totalreg = Object.keys(global.db.data.users || {}).length
 
-    let help = Object.values(global.plugins || []).filter(plugin => !plugin.disabled).map(plugin => {
+    // Obtener plugins con sus comandos REALES
+    let plugins = Object.values(global.plugins || []).filter(plugin => !plugin.disabled).map(plugin => {
       return {
-        help: Array.isArray(plugin.tags) ? plugin.help : [plugin.help],
+        command: plugin.command, // ESTO es lo que queremos: handler.command
         tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
         prefix: 'customPrefix' in plugin,
         limit: plugin.limit,
         premium: plugin.premium,
         enabled: !plugin.disabled,
+        help: plugin.help // Esto es solo para descripción
       }
     })
 
@@ -93,31 +95,31 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     let addedCommands = new Set()
 
     for (let category of categoryOrder) {
-      let categoryPlugins = help.filter(plugin => 
-        plugin && plugin.tags && plugin.help && plugin.tags.includes(category)
+      let categoryPlugins = plugins.filter(plugin => 
+        plugin && plugin.tags && plugin.command && plugin.tags.includes(category)
       )
 
       if (categoryPlugins.length > 0) {
         bodyText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
 
         for (let plugin of categoryPlugins) {
-          if (!plugin.help) continue
+          if (!plugin.command) continue
 
-          let helpArray = Array.isArray(plugin.help) ? plugin.help : [plugin.help]
-          for (let helpCmd of helpArray) {
-            if (!helpCmd) continue
+          // Obtener el comando REAL (handler.command)
+          let commandArray = Array.isArray(plugin.command) ? plugin.command : [plugin.command]
+          
+          for (let cmdObj of commandArray) {
+            if (!cmdObj) continue
 
-            // CORREGIDO: Manejar diferentes formatos de helpCmd
-            let cmdDisplay, cmdBase
+            // Extraer el comando base REAL
+            let cmdBase
             
-            if (typeof helpCmd === 'string') {
+            if (typeof cmdObj === 'string') {
               // Si es string simple como "sky"
-              cmdBase = helpCmd.trim()
-              cmdDisplay = helpCmd.trim()
-            } else if (helpCmd && typeof helpCmd === 'object') {
-              // Si es objeto como { text: 'sky', description: 'Subir a enlace' }
-              cmdBase = helpCmd.text || helpCmd.command || ''
-              cmdDisplay = helpCmd.text || helpCmd.command || ''
+              cmdBase = cmdObj.trim()
+            } else if (cmdObj && typeof cmdObj === 'object') {
+              // Si es objeto como { pattern: 'sky' }
+              cmdBase = cmdObj.pattern || cmdObj.text || cmdObj.command || ''
             } else {
               continue
             }
@@ -131,8 +133,18 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
             // Agregar prefijo si no es custom
             let cmd = plugin.prefix ? cmdBase : _p + cmdBase
 
+            // Obtener descripción si existe
+            let desc = ''
+            if (plugin.help) {
+              if (typeof plugin.help === 'string') {
+                desc = plugin.help
+              } else if (Array.isArray(plugin.help)) {
+                desc = plugin.help[0] || ''
+              }
+            }
+
             // Emoji fijo para todos los comandos
-            bodyText += `ര 🌱 ׅ ${cmd}\n`
+            bodyText += `ര 🌱 ׅ ${cmd}${desc ? ` « ${desc}` : ''}\n`
           }
         }
       }
