@@ -101,13 +101,13 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     // Construir el texto del menú
     let menuText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
-│✨️ *¡Hola* ${name}
-│🔰 *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
-│📌 *Usuarios* : ${totalreg}
-│📩 *Versión* : ${_package.version || '1.0.0'}
-│⏳️ *Uptime* : ${uptime}
-│💾 *RAM* : ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB
-│ *${greeting}* 
+│✐ *¡Hola* ${name}
+│✿ *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
+│✐ *Usuarios* : ${totalreg}
+│✦ *Versión* : ${_package.version || '1.0.0'}
+│✦ *Uptime* : ${uptime}
+│✐ *RAM* : ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB
+│❀ *${greeting}* 
 ╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
 `
