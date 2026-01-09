@@ -96,7 +96,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       case 22: hour = 'una linda noche 🌙'; break;
       case 23: hour = 'una linda noche 🌃'; break;
     }
-    let greeting = "Que Tengas " + hour
+    let greeting = "Que Tengas" + hour
 
     // Construir el texto del menú
     let menuText = `
