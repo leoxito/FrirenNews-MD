@@ -166,7 +166,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     }
 
     // Añadir información final
-    menuText += `\n▸ *Usa ${_p}menu para ver este menú*`
+    menuText += `\n> *Usa ${_p}menu para ver este menú*`
 
     // IMAGEN
     let imageUrl = 'https://cdn.russellxz.click/fec84dad.jpg'
