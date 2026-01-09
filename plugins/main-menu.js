@@ -243,7 +243,7 @@ https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N
   }
 }
 
-handler.command = ['menu', 'menú', 'comandos']
+handler.command = ['menu']
 handler.tags = ['main']
 
 export default handler
