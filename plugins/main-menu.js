@@ -174,16 +174,19 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     ]
 
     let header
+    const thumbResponse = await fetch('https://cdn.russellxz.click/b780df8e.jpg')
+    const thumbBuffer = Buffer.from(await thumbResponse.arrayBuffer())
+    
     const media = await prepareWAMessageMedia({ image: { url: imageUrl } }, { upload: conn.waUploadToServer })
     header = proto.Message.InteractiveMessage.Header.fromObject({
       hasMediaAttachment: true,
       title: '𝐅𝐑𝐈𝐄𝐑𝐄𝐍 𝐁𝐎𝐓 𝐀𝐈',
       subtitle: '𝗗𝗲𝘃 𝗕𝘆 𝗟𝗲𝗼𝘅𝗶𝘁𝗼𝗗𝗲𝘃.𝘆𝘅𝘇',
       hasThumbnail: true,
-      thumbnail: {
-        jpegThumbnail: Buffer.from(await (await fetch('https://cdn.russellxz.click/b780df8e.jpg')).arrayBuffer()),
+      thumbnail: proto.Message.InteractiveMessage.Header.Thumbnail.fromObject({
+        jpegThumbnail: thumbBuffer,
         renderLargerThumbnail: false
-      },
+      }),
       imageMessage: media.imageMessage
     })
 
