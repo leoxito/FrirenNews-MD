@@ -360,7 +360,7 @@ global.reloadHandler = async function(restatConn) {
   return true
 };
 
-const pluginFolder = global.__dirname(join(__dirname, '../plugins/Comandos'))
+const pluginFolder = global.__dirname(join(__dirname, '../plugins'))
 const pluginFilter = (filename) => /\.js$/.test(filename)
 global.plugins = {}
 async function filesInit() {
