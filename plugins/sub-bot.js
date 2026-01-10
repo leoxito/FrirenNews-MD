@@ -1,29 +1,29 @@
 let handler = async (m, { conn, args }) => {
   const subcommand = args[0]?.toLowerCase();
 
-  if (subcommand === 'crear' || !subcommand) {
+  if (subcommand === 'crear' || !args[0]) {
     const phone = args[1] || m.sender.split('@')[0];
     if (!phone.match(/^\d+$/)) return m.reply('Número inválido. Usa: /subbot crear [numero]');
 
     try {
       const { code, sessionId } = await crearSubBot(phone);
-      m.reply(`Código de emparejamiento: ${code}\nSesión ID: ${sessionId}\n\nInstrucciones: Ve a WhatsApp > Dispositivos vinculados > Vincular dispositivo > Ingresa el código.`);
+      m.reply(`Código: ${code}\nID: ${sessionId}`);
     } catch (e) {
       m.reply('Error: ' + e.message);
     }
   } else if (subcommand === 'listar') {
     const subs = listarSubBots();
-    m.reply(`Sub-bots activos: ${subs.length}/50\n${subs.map(s => `- ${s}`).join('\n')}`);
+    m.reply(`Activos: ${subs.length}/50\n${subs.join('\n')}`);
   } else if (subcommand === 'eliminar') {
     const sessionId = args[1];
-    if (!sessionId) return m.reply('Especifica el ID de sesión. Usa: /subbot eliminar [sessionId]');
+    if (!sessionId) return m.reply('Usa: /subbot eliminar [id]');
     if (eliminarSubBot(sessionId)) {
-      m.reply('Sub-bot eliminado.');
+      m.reply('Eliminado.');
     } else {
-      m.reply('Sub-bot no encontrado.');
+      m.reply('No encontrado.');
     }
   } else {
-    m.reply('Uso:\n/subbot crear [numero] - Crear sub-bot\n/subbot listar - Ver sub-bots activos\n/subbot eliminar [sessionId] - Eliminar sub-bot');
+    m.reply('Uso: /subbot crear/listar/eliminar');
   }
 };
 
