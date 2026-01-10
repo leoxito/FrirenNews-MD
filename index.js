@@ -3,13 +3,16 @@ import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 import { watchFile, unwatchFile } from 'fs'
 import cfonts from 'cfonts'
+import { createInterface } from 'readline'
+import yargs from 'yargs'
 import chalk from 'chalk'
 import os from 'os'
-import { spawn } from 'child_process'
+import cluster from 'cluster'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(__dirname)
 const { say } = cfonts
+const rl = createInterface(process.stdin, process.stdout)
 
 say('Friren-MD', {
   font: 'chrome',
@@ -47,35 +50,57 @@ const info = `
 console.log(info)
 console.log(chalk.cyanBright('[🤍]'), chalk.white('Iniciando Friren-MD...\n'))
 
-let childProcess = null
+let isRunning = false
 
-function start() {
-  const args = [join(__dirname, './Friren-Up/main.js'), ...process.argv.slice(2)]
-  
-  childProcess = spawn('node', args, {
-    stdio: ['inherit', 'inherit', 'inherit', 'ipc']
-  })
+async function start(files) {
+  if (isRunning) return
+  isRunning = true
 
-  childProcess.on('message', (data) => {
-    if (data === 'reset') {
-      childProcess.kill()
-      setTimeout(start, 1000)
+  for (const file of files) {
+    let args = [join(__dirname, file), ...process.argv.slice(2)]
+
+    // Nueva API de cluster para Node.js 22+
+    if (cluster.isPrimary || cluster.isMaster) {
+      cluster.setupPrimary({
+        exec: args[0],
+        args: args.slice(1)
+      })
+
+      let p = cluster.fork()
+
+      p.on('message', data => {
+        switch (data) {
+          case 'reset':
+            p.process.kill()
+            isRunning = false
+            start(files)
+            break
+          case 'uptime':
+            p.send(process.uptime())
+            break
+        }
+      })
+
+      p.on('exit', (_, code) => {
+        isRunning = false
+        console.error(chalk.red('❌ Error inesperado:'), code)
+        start(files)
+
+        if (code === 0) return
+        watchFile(args[0], () => {
+          unwatchFile(args[0])
+          start(files)
+        })
+      })
+
+      let opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
+      if (!opts['test'])
+        if (!rl.listenerCount())
+          rl.on('line', line => {
+            p.emit('message', line.trim())
+          })
     }
-  })
-
-  childProcess.on('exit', (code) => {
-    if (code !== 0) {
-      console.error(chalk.red('❌ Proceso terminado. Reiniciando en 5 segundos...'))
-      setTimeout(start, 5000)
-    }
-  })
-
-  watchFile(args[0], () => {
-    unwatchFile(args[0])
-    console.log(chalk.yellow('🔄 Archivo modificado. Reiniciando...'))
-    childProcess.kill()
-    setTimeout(start, 1000)
-  })
+  }
 }
 
-start()
+start(['./Friren-Up/main.js'])
