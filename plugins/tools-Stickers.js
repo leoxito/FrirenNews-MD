@@ -36,13 +36,13 @@ console.error(e)
 if (!stiker) stiker = e
 } finally {
 if (stiker) conn.sendFile(m.chat, stiker, 'sticker.webp', '', m)
-else return conn.reply(m.chat, '*Responda a una Imagen o Vídeo.*', m, rcanal)
+else return conn.reply(m.chat, '*🌱 Responda a una Imagen o Vídeo.*', m, rcanal)
 }
 }
 
 handler.help = ['sticker']
 handler.tags = ['sticker']
-handler.command = ['s', 'sticker', 'stiker'] 
+handler.command = ['s', 'sticker'] 
 
 export default handler
 

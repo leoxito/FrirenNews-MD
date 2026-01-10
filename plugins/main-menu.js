@@ -1,66 +1,43 @@
 import { promises } from 'fs'
 import { join } from 'path'
+import { existsSync } from 'fs'
 import fetch from 'node-fetch'
 import { xpRange } from '../lib/levelling.js'
+import { generateWAMessageFromContent, proto, generateWAMessageContent, prepareWAMessageMedia } from '@whiskeysockets/baileys'
 
-let tags = {
-  'main': '𝐈𝐍𝐅𝐎',
-  'search': '𝐒𝐄𝐀𝐑𝐂𝐇',
-  'dl': '𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀𝐒',
-  'tools': '𝐓𝐎𝐎𝐋𝐒',
-  'sticker': '𝐒𝐓𝐈𝐂𝐊𝐄𝐑𝐒',
-  'owner': '𝐂𝐑𝐄𝐀𝐃𝐎𝐑',
-}
-
-const defaultMenu = {
-  before: `
-┌─「 𝐈𝐍𝐅𝐎 𝐁𝐎𝐓 」
-┃ *⚙ Modo* : Público
-┃ *📚 Baileys* : Multi Device
-┃ *⏱ Tiempo Activo* : %muptime
-┃ *👤 Usuarios* : %totalreg
-╰─────────────
-%readmore
-┌─「 𝐈𝐍𝐅𝐎 𝐔𝐒𝐄𝐑 」
-┃ *☁ Nombre* : %name
-┃ *💰 coins* : %limit
-┃ *📈 Nivel* : %level
-┃ *💫 XP* : %totalexp
-╰─────────────
-%readmore
-\t\t\t
-`.trimStart(),
-  header: '┌─ 「  *`%category`*  」', 
-  body: '┃❏%cmd %islimit %isPremium\n',
-  footer: '╰─────────────',
-  after: ``,
+async function makeFkontak() {
+  try {
+    const res = await fetch('https://cdn.russellxz.click/64bba973.jpg')
+    const thumb2 = Buffer.from(await res.arrayBuffer())
+    return {
+      key: { participants: '0@s.whatsapp.net', remoteJid: 'status@broadcast', fromMe: false, id: 'Halo' },
+      message: { 
+        locationMessage: { 
+          name: '🌳 𝗠𝗲𝗻𝘂 𝗙𝗶𝗲𝗿𝗲𝗻-𝗠𝗗 𝗢𝗳𝗶𝗰𝗶𝗮𝗹 ✅️', 
+          jpegThumbnail: thumb2 
+        } 
+      },
+      participant: '0@s.whatsapp.net'
+    }
+  } catch {
+    return undefined
+  }
 }
 
 let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
   try {
-    let _package = JSON.parse(await promises.readFile(join(__dirname, '../package.json')).catch(_ => ({}))) || {}
-    let { exp, limit, level } = global.db.data.users[m.sender]
-    let { min, xp, max } = xpRange(level, global.multiplier)
+    await conn.sendMessage(m.chat, { react: { text: "☁️", key: m.key } })
+
+    let _package = {}
+    try {
+      _package = JSON.parse(await promises.readFile(join(__dirname, '../package.json')))
+    } catch {
+      _package = { name: 'Bot', version: '1.0.0' }
+    }
+
+    let { exp, limit, level } = global.db.data.users[m.sender] || { exp: 0, limit: 0, level: 0 }
+    let { min, xp, max } = xpRange(level, global.multiplier || 1)
     let name = await conn.getName(m.sender)
-    let d = new Date(new Date + 3600000)
-    let locale = 'es'
-    let weton = ['Pahing', 'Pon', 'Wage', 'Kliwon', 'Legi'][Math.floor(d / 84600000) % 5]
-    let week = d.toLocaleDateString(locale, { weekday: 'long' })
-    let date = d.toLocaleDateString(locale, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
-    let dateIslamic = Intl.DateTimeFormat(locale + '-TN-u-ca-islamic', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }).format(d)
-    let time = d.toLocaleTimeString(locale, {
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric'
-    })
     let _uptime = process.uptime() * 1000
     let _muptime
     if (process.send) {
@@ -72,91 +49,172 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     }
     let muptime = clockString(_muptime)
     let uptime = clockString(_uptime)
-    let totalreg = Object.keys(global.db.data.users).length
-    let rtotalreg = Object.values(global.db.data.users).filter(user => user.registered == true).length
-    let help = Object.values(global.plugins).filter(plugin => !plugin.disabled).map(plugin => {
+    let totalreg = Object.keys(global.db.data.users || {}).length
+
+    let plugins = Object.values(global.plugins || []).filter(plugin => !plugin.disabled).map(plugin => {
       return {
-        help: Array.isArray(plugin.tags) ? plugin.help : [plugin.help],
+        command: plugin.command,
         tags: Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags],
         prefix: 'customPrefix' in plugin,
         limit: plugin.limit,
         premium: plugin.premium,
         enabled: !plugin.disabled,
+        help: plugin.help
       }
     })
-    for (let plugin of help)
-      if (plugin && 'tags' in plugin)
-        for (let tag of plugin.tags)
-          if (!(tag in tags) && tag) tags[tag] = tag
-    conn.menu = conn.menu ? conn.menu : {}
-    let before = conn.menu.before || defaultMenu.before
-    let header = conn.menu.header || defaultMenu.header
-    let body = conn.menu.body || defaultMenu.body
-    let footer = conn.menu.footer || defaultMenu.footer
-    let after = conn.menu.after || (conn.user.jid == global.conn.user.jid ? '' : ``) + defaultMenu.after
-    let _text = [
-      before,
-      ...Object.keys(tags).map(tag => {
-        return header.replace(/%category/g, tags[tag]) + '\n' + [
-          ...help.filter(menu => menu.tags && menu.tags.includes(tag) && menu.help).map(menu => {
-            return menu.help.map(help => {
-              return body.replace(/%cmd/g, menu.prefix ? help : '%p' + help)
-                .replace(/%islimit/g, menu.limit ? '◜⭐◞' : '')
-                .replace(/%isPremium/g, menu.premium ? '◜🪪◞' : '')
-                .trim()
-            }).join('\n')
-          }),
-          footer
-        ].join('\n')
-      }),
-      after
-    ].join('\n')
-    let text = typeof conn.menu == 'string' ? conn.menu : typeof conn.menu == 'object' ? _text : ''
-    let replace = {
-      '%': '%',
-      p: _p, uptime, muptime,
-      taguser: '@' + m.sender.split("@s.whatsapp.net")[0],
-      wasp: '@0',
-      me: conn.getName(conn.user.jid),
-      npmname: _package.name,
-      version: _package.version,
-      npmdesc: _package.description,
-      npmmain: _package.main,
-      author: _package.author.name,
-      license: _package.license,
-      exp: exp - min,
-      maxexp: xp,
-      totalexp: exp,
-      xp4levelup: max - exp,
-      github: _package.homepage ? _package.homepage.url || _package.homepage : '[unknown github url]',
-      greeting, level, limit, name, weton, week, date, dateIslamic, time, totalreg, rtotalreg,
-      readmore: readMore
+
+    const now = new Date()
+    const utcHour = now.getUTCHours()
+    const mexicanHour = (utcHour - 6 + 24) % 24
+
+    let hour
+    switch(mexicanHour){
+      case 0: hour = 'una linda noche 🌙'; break;
+      case 1: hour = 'una linda noche 💤'; break;
+      case 2: hour = 'una linda noche 🦉'; break;
+      case 3: hour = 'una linda mañana ✨'; break;
+      case 4: hour = 'una linda mañana 💫'; break;
+      case 5: hour = 'una linda mañana 🌅'; break;
+      case 6: hour = 'una linda mañana 🌄'; break;
+      case 7: hour = 'una linda mañana 🌅'; break;
+      case 8: hour = 'una linda mañana 💫'; break;
+      case 9: hour = 'una linda mañana ✨'; break;
+      case 10: hour = 'un lindo dia 🌞'; break;
+      case 11: hour = 'un lindo dia 🌨'; break;
+      case 12: hour = 'un lindo dia ❄'; break;
+      case 13: hour = 'un lindo dia 🌤'; break;
+      case 14: hour = 'una linda tarde 🌇'; break;
+      case 15: hour = 'una linda tarde 🥀'; break;
+      case 16: hour = 'una linda tarde 🌹'; break;
+      case 17: hour = 'una linda tarde 🌆'; break;
+      case 18: hour = 'una linda noche 🌙'; break;
+      case 19: hour = 'una linda noche 🌃'; break;
+      case 20: hour = 'una linda noche 🌌'; break;
+      case 21: hour = 'una linda noche 🌃'; break;
+      case 22: hour = 'una linda noche 🌙'; break;
+      case 23: hour = 'una linda noche 🌃'; break;
     }
-    text = text.replace(new RegExp(`%(${Object.keys(replace).sort((a, b) => b.length - a.length).join`|`})`, 'g'), (_, name) => '' + replace[name])
+    let greeting = "Que Tengas " + hour
 
+    let menuText = `
+╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+│✐ *¡Hola* ${name}! 
+│✿ *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
+│✐ *Usuarios* : ${totalreg}
+│✦ *Versión* : ${_package.version || '1.0.0'}
+│✦ *Uptime* : ${uptime}
+│✐ *RAM* : ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB
+│ *${greeting}* 
+╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
-/*let pp = `https://telegra.ph/file/666f347726644b3f59504.mp4`
-let pp2 = `https://telegra.ph/file/f3ecc05a390ff8033943d.mp4`
-    await m.react('💙')
-    await conn.sendMessage(m.chat, { video: { url: [ pp, pp2 ].getRandom() }, gifPlayback: true, caption: text.trim(), mentions: [m.sender] }, { quoted: m })*/
+`
+    const categoryDecorations = {
+      'main': '𓂂𓏸 𐅹੭੭ *`𝐈𝐍𝐅𝐎`* ⭐️ ᦡᦡ',
+      'search': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐀𝐑𝐂𝐇`* 🔍 ᦡᦡ',
+      'downloader': '𓂂𓏸 𐅹੭੭ *`𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀𝐒`* 🌿 ᦡᦡ',
+      'tools': '𓂂𓏸 𐅹੭੭ *`𝐓𝐎𝐎𝐋𝐒`* 🛠️ ᦡᦡ',
+      'sticker': '𓂂𓏸 𐅹੭੭ *`𝐒𝐓𝐈𝐂𝐊𝐄𝐑𝐒`* 🖼 ᦡᦡ',
+      'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ',
+      'serbot': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐑-𝐒𝐔𝐁𝐎𝐓`* 🤖 ᦡᦡ'
+    }
 
-let img = 'https://telegra.ph/file/72f984396bb1db415d153.jpg'
-    
-   await conn.sendFile(m.chat, img, 'thumbnail.jpg', text.trim(), m, null, rcanal)
-   //await conn.sendSP(m.chat, botname, null, text.trim(), img, img, null, m)
+    const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner', 'serbot']
+
+    let addedCommands = new Set()
+
+    for (let category of categoryOrder) {
+      let categoryPlugins = plugins.filter(plugin => 
+        plugin && plugin.tags && plugin.command && plugin.tags.includes(category)
+      )
+
+      if (categoryPlugins.length > 0) {
+        menuText += `\n${categoryDecorations[category] || '𓂂𓏸 𐅹੭੭ *`' + category.toUpperCase() + '`* ᦡᦡ'}\n`
+
+        for (let plugin of categoryPlugins) {
+          if (!plugin.command) continue
+
+          let commandArray = Array.isArray(plugin.command) ? plugin.command : [plugin.command]
+
+          for (let cmdObj of commandArray) {
+            if (!cmdObj) continue
+
+            let cmdBase
+            if (typeof cmdObj === 'string') {
+              cmdBase = cmdObj.trim()
+            } else if (cmdObj && typeof cmdObj === 'object') {
+              cmdBase = cmdObj.pattern || cmdObj.text || cmdObj.command || ''
+            } else {
+              continue
+            }
+
+            if (!cmdBase) continue
+
+            if (addedCommands.has(cmdBase.toLowerCase())) continue
+            addedCommands.add(cmdBase.toLowerCase())
+
+            let cmd = plugin.prefix ? cmdBase : _p + cmdBase
+            menuText += `ര 🌱 ׅ *_${cmd}_*\n`
+          }
+        }
+      }
+    }
+
+    menuText += `\n> *Usa ${_p}menu para ver este menú*`
+
+    let imageUrl = 'https://cdn.russellxz.click/e07c77a9.jpg'
+
+    const nativeButtons = [
+      {
+        name: 'cta_url',
+        buttonParamsJson: JSON.stringify({ 
+          display_text: "✎ 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
+          url: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N' 
+        })
+      },
+      {
+        name: 'cta_url',
+        buttonParamsJson: JSON.stringify({ 
+          display_text: "✎ 𝐒𝐲𝐥𝐩𝐡𝐲-𝐀𝐩𝐢 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
+          url: 'https://sylphy.xyz' 
+        })
+      }
+    ]
+
+    let header
+    const media = await prepareWAMessageMedia({ image: { url: imageUrl } }, { upload: conn.waUploadToServer })
+    header = proto.Message.InteractiveMessage.Header.fromObject({
+      hasMediaAttachment: true,
+      imageMessage: media.imageMessage
+    })
+
+    const interactiveMessage = proto.Message.InteractiveMessage.fromObject({
+      body: proto.Message.InteractiveMessage.Body.fromObject({ text: menuText }),
+      footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: '' }),
+      header,
+      nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+        buttons: nativeButtons
+      })
+    })
+
+    const fkontak = await makeFkontak()
+    const msg = generateWAMessageFromContent(m.chat, { interactiveMessage }, { 
+      userJid: conn.user.jid, 
+      quoted: fkontak 
+    })
+
+    await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
+    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
 
   } catch (e) {
-    conn.reply(m.chat, '❎ Lo sentimos, el menú tiene un error.', m)
-    throw e
+    console.error('Error en menú:', e)
+    m.reply(`❌ *Error en el menú:*\n${e.message || 'Error desconocido'}`)
   }
 }
 
-handler.command = ['menu', 'help', 'menú'] 
+handler.command = ['menu']
+handler.tags = ['main']
+
 export default handler
-
-
-const more = String.fromCharCode(8206)
-const readMore = more.repeat(4001)
 
 function clockString(ms) {
   let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000)
@@ -164,33 +222,3 @@ function clockString(ms) {
   let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
   return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':')
 }
-
-  var ase = new Date();
-  var hour = ase.getHours();
-switch(hour){
-  case 0: hour = 'una linda noche 🌙'; break;
-  case 1: hour = 'una linda noche 💤'; break;
-  case 2: hour = 'una linda noche 🦉'; break;
-  case 3: hour = 'una linda mañana ✨'; break;
-  case 4: hour = 'una linda mañana 💫'; break;
-  case 5: hour = 'una linda mañana 🌅'; break;
-  case 6: hour = 'una linda mañana 🌄'; break;
-  case 7: hour = 'una linda mañana 🌅'; break;
-  case 8: hour = 'una linda mañana 💫'; break;
-  case 9: hour = 'una linda mañana ✨'; break;
-  case 10: hour = 'un lindo dia 🌞'; break;
-  case 11: hour = 'un lindo dia 🌨'; break;
-  case 12: hour = 'un lindo dia ❄'; break;
-  case 13: hour = 'un lindo dia 🌤'; break;
-  case 14: hour = 'una linda tarde 🌇'; break;
-  case 15: hour = 'una linda tarde 🥀'; break;
-  case 16: hour = 'una linda tarde 🌹'; break;
-  case 17: hour = 'una linda tarde 🌆'; break;
-  case 18: hour = 'una linda noche 🌙'; break;
-  case 19: hour = 'una linda noche 🌃'; break;
-  case 20: hour = 'una linda noche 🌌'; break;
-  case 21: hour = 'una linda noche 🌃'; break;
-  case 22: hour = 'una linda noche 🌙'; break;
-  case 23: hour = 'una linda noche 🌃'; break;
-}
-  var greeting = "espero que tengas " + hour;
