@@ -101,7 +101,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     // Construir el texto del menú
     let menuText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
-│✐ *¡Hola* @${m.sender.split('@')[0]} (${name})! 
+│✐ *¡Hola* @${m.sender.split('@')[0]}! 
 │✿ *Estado* : ${conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub-Bot ꕥ'}
 │✐ *Usuarios* : ${totalreg}
 │✦ *Versión* : ${_package.version || '1.0.0'}
@@ -111,7 +111,6 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 ╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
 `
-
     // Decoración para cada categoría
     const categoryDecorations = {
       'main': '𓂂𓏸 𐅹੭੭ *`𝐈𝐍𝐅𝐎`* ⭐️ ᦡᦡ',
