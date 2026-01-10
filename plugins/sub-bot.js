@@ -29,7 +29,7 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.command = ['subbot'];
+handler.command = ['code'];
 handler.desc = 'Sistema de sub-bots personalizado con límite de 50';
 handler.group = true;
 
