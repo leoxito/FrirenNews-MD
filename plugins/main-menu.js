@@ -117,8 +117,9 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       'search': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐀𝐑𝐂𝐇`* 🔍 ᦡᦡ',
       'downloader': '𓂂𓏸 𐅹੭੭ *`𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀𝐒`* 🌿 ᦡᦡ',
       'tools': '𓂂𓏸 𐅹੭੭ *`𝐓𝐎𝐎𝐋𝐒`* 🛠️ ᦡᦡ',
-      'sticker': '𓂂𓏸 𐅹੭੭ *`𝐒𝐓𝐈𝐂𝐊𝐄𝐑𝐒`* 🎴 ᦡᦡ',
+      'sticker': '𓂂𓏸 𐅹੭੭ *`𝐒𝐓𝐈𝐂𝐊𝐄𝐑𝐒`* 🖼 ᦡᦡ',
       'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ'
+      'serbot': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐑-𝐒𝐔𝐁𝐎𝐓`* 🤖 ᦡᦡ'
     }
 
     // Orden de las categorías
