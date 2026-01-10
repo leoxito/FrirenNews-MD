@@ -14,14 +14,12 @@ const require = createRequire(__dirname)
 const { say } = cfonts
 const rl = createInterface(process.stdin, process.stdout)
 
-/* ===== LOGO FRIEREN  ===== */
 say('Friren-MD', {
   font: 'chrome',
   align: 'center',
   gradient: ['white', 'blue']
 })
 
-/* ===== INFORMACIÓN DEL SISTEMA ===== */
 const ramInGB = os.totalmem() / (1024 * 1024 * 1024)
 const freeRamInGB = os.freemem() / (1024 * 1024 * 1024)
 const currentTime = new Date().toLocaleString()
@@ -52,7 +50,6 @@ const info = `
 console.log(info)
 console.log(chalk.cyanBright('[🤍]'), chalk.white('Iniciando Friren-MD...\n'))
 
-/* ===== PROCESO SIMPLE ===== */
 let isRunning = false
 let childProcess = null
 
