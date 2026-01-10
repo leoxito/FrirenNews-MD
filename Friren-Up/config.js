@@ -19,6 +19,7 @@ global.etiqueta = "leoxitoDev.xyz"
 global.currency = "¥enes"
 global.packname = ``
 global.author = ''
+global.apikey = 'Frieren'
 global.group = "https://chat.whatsapp.com/DTy5WmWeyHp4oOzFlydUhN"
 global.community = "https://chat.whatsapp.com/L3Kruk5HQCX0SHe4nzPOGX"
 global.channel = "https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N"
