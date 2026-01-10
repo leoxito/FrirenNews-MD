@@ -1,13 +1,13 @@
 import { join, dirname } from 'path'
 import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
-import { setupMaster, fork } from 'cluster'
 import { watchFile, unwatchFile } from 'fs'
 import cfonts from 'cfonts'
 import { createInterface } from 'readline'
 import yargs from 'yargs'
 import chalk from 'chalk'
 import os from 'os'
+import { spawn } from 'child_process'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(__dirname)
@@ -52,55 +52,52 @@ const info = `
 console.log(info)
 console.log(chalk.cyanBright('[🤍]'), chalk.white('Iniciando Friren-MD...\n'))
 
-/* ===== CLUSTER ===== */
+/* ===== PROCESO SIMPLE ===== */
 let isRunning = false
+let childProcess = null
 
-async function start(files) {
+async function start(file) {
   if (isRunning) return
   isRunning = true
 
-  for (const file of files) {
-    let args = [join(__dirname, file), ...process.argv.slice(2)]
+  const args = [join(__dirname, file), ...process.argv.slice(2)]
+  
+  childProcess = spawn('node', args, {
+    stdio: ['inherit', 'inherit', 'inherit', 'ipc']
+  })
 
-    setupMaster({
-      exec: args[0],
-      args: args.slice(1)
+  childProcess.on('message', data => {
+    switch (data) {
+      case 'reset':
+        childProcess.kill()
+        isRunning = false
+        start(file)
+        break
+      case 'uptime':
+        childProcess.send(process.uptime())
+        break
+    }
+  })
+
+  childProcess.on('exit', (code) => {
+    isRunning = false
+    console.error(chalk.red('❌ Error inesperado:'), code)
+    
+    if (code === 0) return
+    watchFile(args[0], () => {
+      unwatchFile(args[0])
+      start(file)
     })
+    
+    setTimeout(() => start(file), 5000)
+  })
 
-    let p = fork()
-
-    p.on('message', data => {
-      switch (data) {
-        case 'reset':
-          p.process.kill()
-          isRunning = false
-          start(files)
-          break
-        case 'uptime':
-          p.send(process.uptime())
-          break
-      }
-    })
-
-    p.on('exit', (_, code) => {
-      isRunning = false
-      console.error(chalk.red('❌ Error inesperado:'), code)
-      start(files)
-
-      if (code === 0) return
-      watchFile(args[0], () => {
-        unwatchFile(args[0])
-        start(files)
+  let opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
+  if (!opts['test'])
+    if (!rl.listenerCount())
+      rl.on('line', line => {
+        childProcess.emit('message', line.trim())
       })
-    })
-
-    let opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
-    if (!opts['test'])
-      if (!rl.listenerCount())
-        rl.on('line', line => {
-          p.emit('message', line.trim())
-        })
-  }
 }
 
-start(['./Friren-Up/main.js'])
+start('./Friren-Up/main.js')
