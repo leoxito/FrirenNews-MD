@@ -1,3 +1,5 @@
+import { crearSubBot, listarSubBots, eliminarSubBot } from '../lib/subs.js';
+
 let handler = async (m, { conn, args }) => {
   const subcommand = args[0]?.toLowerCase();
 
