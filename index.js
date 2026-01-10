@@ -1,7 +1,7 @@
 import { join, dirname } from 'path'
 import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
-import { setupMaster, fork } from 'cluster'
+import cluster from 'cluster'
 import { watchFile, unwatchFile } from 'fs'
 import cfonts from 'cfonts'
 import { createInterface } from 'readline'
@@ -14,14 +14,12 @@ const require = createRequire(__dirname)
 const { say } = cfonts
 const rl = createInterface(process.stdin, process.stdout)
 
-/* ===== LOGO FRIEREN  ===== */
 say('Friren-MD', {
   font: 'chrome',
   align: 'center',
   gradient: ['white', 'blue']
 })
 
-/* ===== INFORMACIÓN DEL SISTEMA ===== */
 const ramInGB = os.totalmem() / (1024 * 1024 * 1024)
 const freeRamInGB = os.freemem() / (1024 * 1024 * 1024)
 const currentTime = new Date().toLocaleString()
@@ -52,7 +50,6 @@ const info = `
 console.log(info)
 console.log(chalk.cyanBright('[🤍]'), chalk.white('Iniciando Friren-MD...\n'))
 
-/* ===== CLUSTER ===== */
 let isRunning = false
 
 async function start(files) {
@@ -62,12 +59,12 @@ async function start(files) {
   for (const file of files) {
     let args = [join(__dirname, file), ...process.argv.slice(2)]
 
-    setupMaster({
+    cluster.setupMaster({
       exec: args[0],
       args: args.slice(1)
     })
 
-    let p = fork()
+    let p = cluster.fork()
 
     p.on('message', data => {
       switch (data) {
@@ -104,4 +101,3 @@ async function start(files) {
 }
 
 start(['./Friren-Up/main.js'])
-
