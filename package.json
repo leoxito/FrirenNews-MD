@@ -2,7 +2,7 @@
   "name": "Friren-MD",
   "version": "1.0.0",
   "description": "Friren-MultiDevice",
-  "main": "index.js",
+  "main": "main.js",
   "type": "module",
   "directories": {
     "lib": "lib",
@@ -10,7 +10,7 @@
     "plugins": "plugins"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node main.js"
   },
   "homepage": "https://github.com/leoxito/FrirenNews-MD",
   "author": {
