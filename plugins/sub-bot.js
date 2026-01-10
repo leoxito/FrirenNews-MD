@@ -13,7 +13,7 @@ export default {
       const sessionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       try {
         const code = await iniciarSubBot(phone, sessionId);
-        m.reply(`Código generado: ${code}\nSesión ID: ${sessionId}`);
+        m.reply(`Código de emparejamiento: ${code}\nSesión ID: ${sessionId}`);
       } catch (e) {
         m.reply('Error generando código: ' + e.message);
       }
