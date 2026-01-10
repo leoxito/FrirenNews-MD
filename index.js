@@ -1,22 +1,27 @@
 import { join, dirname } from 'path'
 import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
+import { setupMaster, fork } from 'cluster'
 import { watchFile, unwatchFile } from 'fs'
 import cfonts from 'cfonts'
+import { createInterface } from 'readline'
+import yargs from 'yargs'
 import chalk from 'chalk'
 import os from 'os'
-import { spawn } from 'child_process'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(__dirname)
 const { say } = cfonts
+const rl = createInterface(process.stdin, process.stdout)
 
+/* ===== LOGO FRIEREN  ===== */
 say('Friren-MD', {
   font: 'chrome',
   align: 'center',
   gradient: ['white', 'blue']
 })
 
+/* ===== INFORMACIÓN DEL SISTEMA ===== */
 const ramInGB = os.totalmem() / (1024 * 1024 * 1024)
 const freeRamInGB = os.freemem() / (1024 * 1024 * 1024)
 const currentTime = new Date().toLocaleString()
@@ -47,46 +52,56 @@ const info = `
 console.log(info)
 console.log(chalk.cyanBright('[🤍]'), chalk.white('Iniciando Friren-MD...\n'))
 
-let childProcess = null
+/* ===== CLUSTER ===== */
+let isRunning = false
 
-function start() {
-  const args = [join(__dirname, './Friren-Up/main.js'), ...process.argv.slice(2)]
-  
-  console.log(chalk.cyan('🚀 Iniciando proceso del bot...'))
-  childProcess = spawn('node', args, {
-    stdio: ['inherit', 'inherit', 'inherit', 'ipc']
-  })
+async function start(files) {
+  if (isRunning) return
+  isRunning = true
 
-  childProcess.on('message', (data) => {
-    console.log(chalk.cyan('📨 Mensaje del bot:'), data)
-    if (data === 'reset') {
-      console.log(chalk.yellow('🔄 Reiniciando bot por solicitud...'))
-      childProcess.kill()
-      setTimeout(start, 3000)
-    }
-  })
+  for (const file of files) {
+    let args = [join(__dirname, file), ...process.argv.slice(2)]
 
-  childProcess.on('exit', (code) => {
-    console.log(chalk.cyan(`🔚 Proceso terminado con código: ${code}`))
-    if (code !== 0 && code !== null) {
-      console.error(chalk.red('❌ Error detectado. Reiniciando en 5 segundos...'))
-      setTimeout(start, 5000)
-    } else if (code === 0) {
-      console.log(chalk.green('✅ Bot cerrado correctamente'))
-    }
-  })
+    setupMaster({
+      exec: args[0],
+      args: args.slice(1)
+    })
 
-  childProcess.on('error', (err) => {
-    console.error(chalk.red('💥 Error en el proceso:'), err)
-    setTimeout(start, 5000)
-  })
+    let p = fork()
 
-  watchFile(args[0], () => {
-    unwatchFile(args[0])
-    console.log(chalk.yellow('📝 Archivo principal modificado. Reiniciando...'))
-    childProcess.kill()
-    setTimeout(start, 1000)
-  })
+    p.on('message', data => {
+      switch (data) {
+        case 'reset':
+          p.process.kill()
+          isRunning = false
+          start(files)
+          break
+        case 'uptime':
+          p.send(process.uptime())
+          break
+      }
+    })
+
+    p.on('exit', (_, code) => {
+      isRunning = false
+      console.error(chalk.red('❌ Error inesperado:'), code)
+      start(files)
+
+      if (code === 0) return
+      watchFile(args[0], () => {
+        unwatchFile(args[0])
+        start(files)
+      })
+    })
+
+    let opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
+    if (!opts['test'])
+      if (!rl.listenerCount())
+        rl.on('line', line => {
+          p.emit('message', line.trim())
+        })
+  }
 }
 
-start()
+start(['./Friren-Up/main.js'])
+
