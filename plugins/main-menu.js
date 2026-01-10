@@ -123,7 +123,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     }
 
     // Orden de las categorías
-    const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner']
+    const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner', 'serbot']
 
     // Añadir cada categoría con su decoración - EVITAR DUPLICADOS
     let addedCommands = new Set()
