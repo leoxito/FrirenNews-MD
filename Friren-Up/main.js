@@ -258,8 +258,14 @@ if (opcion == '1' || methodCodeQR) {
 let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
 if (reason == 405) {
 await fs.unlinkSync("./sessions/" + "creds.json")
-console.log(chalk.white('✐ Conexión replazada, Por favor espere un momento me voy a reiniciar...\n✦ Si aparecen error vuelve a iniciar con : npm start')) 
-process.send('reset')}
+
+// LÍNEA 172 CORREGIDA:
+console.log(chalk.white('✐ Conexión replazada. Reiniciando en 3 segundos...'))
+setTimeout(() => {
+  process.exit(1)
+}, 3000)
+
+}
 if (connection === 'close') {
     if (reason === DisconnectReason.badSession) {
         console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄ ☹`))
