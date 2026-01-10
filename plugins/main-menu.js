@@ -51,7 +51,6 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     let uptime = clockString(_uptime)
     let totalreg = Object.keys(global.db.data.users || {}).length
 
-    // Obtener plugins con sus comandos REALES
     let plugins = Object.values(global.plugins || []).filter(plugin => !plugin.disabled).map(plugin => {
       return {
         command: plugin.command,
@@ -64,10 +63,9 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     })
 
-    // Saludo según hora de México (Zona Centro)
     const now = new Date()
     const utcHour = now.getUTCHours()
-    const mexicanHour = (utcHour - 6 + 24) % 24 // Hora Central de México
+    const mexicanHour = (utcHour - 6 + 24) % 24
 
     let hour
     switch(mexicanHour){
@@ -98,7 +96,6 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
     }
     let greeting = "Que Tengas " + hour
 
-    // Construir el texto del menú
     let menuText = `
 ╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 │✐ *¡Hola* ${name}! 
@@ -111,21 +108,18 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 ╰ׅ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
 
 `
-    // Decoración para cada categoría
     const categoryDecorations = {
       'main': '𓂂𓏸 𐅹੭੭ *`𝐈𝐍𝐅𝐎`* ⭐️ ᦡᦡ',
       'search': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐀𝐑𝐂𝐇`* 🔍 ᦡᦡ',
       'downloader': '𓂂𓏸 𐅹੭੭ *`𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀𝐒`* 🌿 ᦡᦡ',
       'tools': '𓂂𓏸 𐅹੭੭ *`𝐓𝐎𝐎𝐋𝐒`* 🛠️ ᦡᦡ',
       'sticker': '𓂂𓏸 𐅹੭੭ *`𝐒𝐓𝐈𝐂𝐊𝐄𝐑𝐒`* 🖼 ᦡᦡ',
-      'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ'
+      'owner': '𓂂𓏸 𐅹੭੭ *`𝐂𝐑𝐄𝐀𝐃𝐎𝐑`* 👑 ᦡᦡ',
       'serbot': '𓂂𓏸 𐅹੭੭ *`𝐒𝐄𝐑-𝐒𝐔𝐁𝐎𝐓`* 🤖 ᦡᦡ'
     }
 
-    // Orden de las categorías
     const categoryOrder = ['main', 'search', 'downloader', 'tools', 'sticker', 'owner', 'serbot']
 
-    // Añadir cada categoría con su decoración - EVITAR DUPLICADOS
     let addedCommands = new Set()
 
     for (let category of categoryOrder) {
@@ -165,19 +159,23 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       }
     }
 
-    // Añadir información final
     menuText += `\n> *Usa ${_p}menu para ver este menú*`
 
-    // IMAGEN
     let imageUrl = 'https://cdn.russellxz.click/e07c77a9.jpg'
 
-    // BOTONES: SOLO Canal Oficial
     const nativeButtons = [
       {
         name: 'cta_url',
         buttonParamsJson: JSON.stringify({ 
           display_text: "✎ 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
           url: 'https://whatsapp.com/channel/0029VbBvZH5LNSa4ovSSbQ2N' 
+        })
+      },
+      {
+        name: 'cta_url',
+        buttonParamsJson: JSON.stringify({ 
+          display_text: "✎ 𝐒𝐲𝐥𝐩𝐡𝐲-𝐀𝐩𝐢 𝐎𝐟𝐢𝐜𝐢𝐚𝐥",
+          url: 'https://sylphy.xyz' 
         })
       }
     ]
@@ -189,7 +187,6 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
       imageMessage: media.imageMessage
     })
 
-    // Crear mensaje interactivo
     const interactiveMessage = proto.Message.InteractiveMessage.fromObject({
       body: proto.Message.InteractiveMessage.Body.fromObject({ text: menuText }),
       footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: '' }),
