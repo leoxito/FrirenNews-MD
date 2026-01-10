@@ -1,83 +1,169 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-// import { getDownloadLink } from '../Scrapers/Tiktokdl.js';
+import fs from 'fs';
+import { promisify } from 'util';
+import stream from 'stream';
+import vm from 'vm';
+import path from 'path';
 
-const BASE_URL = 'https://dlpanda.com/en';
+const pipeline = promisify(stream.pipeline);
+const client = axios.create();
 
-async function getDownloadLink(tiktokUrl) {
+const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/javascript, */*; q=0.01',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Origin': 'https://snaptik.app',
+    'Referer': 'https://snaptik.app/en2',
+    'X-Requested-With': 'XMLHttpRequest'
+};
+
+async function scrapeSnapTik(videoUrl) {
     try {
-        const response1 = await axios.get(BASE_URL, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.9'
-            }
+        const baseUrl = 'https://snaptik.app/en2';
+        const pageResp = await client.get(baseUrl, { 
+            headers: { ...headers, 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8' }
         });
-
-        const $1 = cheerio.load(response1.data);
-        const token = $1('#token').val();
         
-        if (!token) {
-            throw new Error('Could not find token on the page.');
-        }
-
-        const targetUrl = `${BASE_URL}?url=${encodeURIComponent(tiktokUrl)}&t0ken=${token}`;
+        const $ = cheerio.load(pageResp.data);
+        const token = $('input[name="token"]').val();
         
-        const response2 = await axios.get(targetUrl, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                'Referer': BASE_URL
-            }
-        });
+        if (!token) throw new Error('Token not found');
 
-        const $2 = cheerio.load(response2.data);
-        const videoLinks = new Set();
+        const buildUrl = 'https://snaptik.app/abc2.php'; 
+        const params = new URLSearchParams();
+        params.append('url', videoUrl);
+        params.append('lang', 'en2');
+        params.append('token', token);
 
-        $2('a').each((_, el) => {
-            let href = $2(el).attr('href');
-            if (href && (href.includes('.mp4') || href.includes('tiktokcdn') || href.includes('download'))) {
-                 if (!href.includes('/article/')) {
-                    if (href.startsWith('//')) {
-                        href = 'https:' + href;
+        const postResp = await client.post(buildUrl, params, { headers });
+        
+        if (postResp.data.includes('eval(function(')) {
+            try {
+                const sandbox = { 
+                    eval: (decoded) => { sandbox.decodedResult = decoded; },
+                    console: console, Math: Math, String: String,
+                    decodeURIComponent: decodeURIComponent, escape: escape,
+                    window: {}, document: {},
+                };
+                
+                vm.createContext(sandbox);
+                vm.runInContext(postResp.data, sandbox);
+                
+                if (sandbox.decodedResult) {
+                    let htmlContent = sandbox.decodedResult;
+                    const innerHtmlMatch = sandbox.decodedResult.match(/innerHTML\s*=\s*"(.*?)";/s);
+                    if (innerHtmlMatch) {
+                        htmlContent = innerHtmlMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '');
                     }
-                    videoLinks.add(href);
-                 }
+
+                    const $d = cheerio.load(htmlContent);
+                    const decodedLinks = [];
+                    
+                    $d('a').each((i, el) => {
+                        let href = $d(el).attr('href');
+                        if (href) {
+                            if (href.startsWith('/')) {
+                                href = 'https://snaptik.app' + href;
+                            }
+                            
+                            if ($d(el).text().toLowerCase().includes('download') || 
+                                $d(el).attr('class')?.includes('download') || 
+                                $d(el).attr('class')?.includes('btn')) {
+                                decodedLinks.push({
+                                    url: href,
+                                    text: $d(el).text().trim()
+                                });
+                            }
+                        }
+                    });
+
+                    if (decodedLinks.length > 0) {
+                        return {
+                            success: true,
+                            links: decodedLinks,
+                            originalUrl: videoUrl
+                        };
+                    } else {
+                         throw new Error('No download links found in decoded content');
+                    }
+                } else {
+                    throw new Error('Eval failed to produce decoded content');
+                }
+            } catch (vmError) {
+               throw new Error('VM Execution Error: ' + vmError.message);
             }
-        });
-
-        if (videoLinks.size > 0) {
-            return Array.from(videoLinks);
         } else {
-            return [];
+             throw new Error('Invalid response format (not obfuscated JS)');
         }
-
     } catch (error) {
-        console.error('Error:', error.message);
-        return [];
+        throw error;
     }
 }
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-    if (!args[0]) throw `*Ingrese el enlace de un video de TikTok.*\n\n*Ejemplo:*\n${usedPrefix + command} https://www.tiktok.com/@jasonmoments/video/7560870151021694230`
-    
-    await m.react('🕐')
-    try {
-        const links = await getDownloadLink(args[0]);
-        if (links.length === 0) throw 'No se encontraron enlaces de descarga.';
-        
-        // Send the first link found (usually the video)
-        await conn.sendMessage(m.chat, { video: { url: links[0] }, caption: '*Aquí tienes tu video de TikTok ฅ^•ﻌ•^ฅ*' }, { quoted: m });
-        await m.react('✅')
-    } catch (e) {
-        console.error(e)
-        await m.react('❌')
-        m.reply('> *Ocurrió un error al descargar el video.*')
+    if (!args[0]) {
+        return m.reply(`*❀ Ingrese el enlace de TikTok.*\n> Ejemplo: *${usedPrefix + command} https://vm.tiktok.com/xxxxxx*`);
     }
-}
 
-handler.help = ['Tiktok < Link >']
-handler.tags = ['downloader']
-handler.command = ['tt']
+    const videoUrl = args[0];
+    if (!videoUrl.match(/tiktok/gi)) {
+          return m.reply(`> *❌ Enlace no válido. Asegúrese de que sea un enlace de TikTok.*`);
+    }
 
-export default handler
+    await m.react('🕐').catch(() => {});
+
+    try {
+        const result = await scrapeSnapTik(videoUrl);
+        
+        if (result && result.success && result.links.length > 0) {
+            const targetLink = result.links[0].url;
+
+            const tmpDir = path.join(process.cwd(), 'tmp');
+            if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+            
+            const filename = `tiktok_${Date.now()}.mp4`;
+            const filePath = path.join(tmpDir, filename);
+
+            const writer = fs.createWriteStream(filePath);
+            
+            await new Promise(async (resolve, reject) => {
+                 try {
+                    const videoResp = await client.get(targetLink, { 
+                        responseType: 'stream',
+                        headers: { ...headers, 'Referer': 'https://snaptik.app/' }
+                    });
+                    
+                    videoResp.data.pipe(writer);
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                 } catch (err) {
+                     reject(err);
+                 }
+            });
+
+            await conn.sendMessage(m.chat, {
+                video: { url: filePath },
+                caption: `*☁️ TikTok descargado*`
+            }, { quoted: m });
+
+            // Clean up
+            fs.unlinkSync(filePath);
+            await m.react('✅').catch(() => {});
+
+        } else {
+            throw new Error('No se encontraron enlaces de descarga.');
+        }
+
+    } catch (e) {
+        console.error(e);
+        await m.react('❌').catch(() => {});
+        m.reply(`*❌ Error al descargar el video: ${e.message}*`);
+    }
+};
+
+handler.help = ['tiktok <url>'];
+handler.tags = ['dl'];
+handler.command = ['tiktok', 'tt'];
+
+export default handler;
