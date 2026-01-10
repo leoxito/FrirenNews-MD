@@ -144,7 +144,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
             await conn.sendMessage(m.chat, {
                 video: { url: filePath },
-                caption: `*☁️ TikTok descargado*`
+                caption: `> *☁️ Aqui Tienes Tu Video*`
             }, { quoted: m });
 
             // Clean up
