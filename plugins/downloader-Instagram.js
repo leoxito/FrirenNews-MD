@@ -1,7 +1,7 @@
 import { getDownloadLink } from '../Scrapers/Instagramdl.js'
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-    if (!args[0]) throw `🎌 *Ingresa un enlace de Instagram*\n\n📌 Ejemplo: ${usedPrefix + command} https://www.instagram.com/reel/DQnRQuEkeAW/`
+    if (!args[0]) throw `*❀ Ingrese el enlace de TikTok.*\n> Ejemplo: *${usedPrefix + command} https://vm.tiktok.com/xxxxxx*`);
     
     // Reacción de búsqueda 🕐
     await conn.sendMessage(m.chat, { react: { text: "🕐", key: m.key } })
